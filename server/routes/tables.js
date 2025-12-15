@@ -30,9 +30,10 @@ router.get('/:id', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const { tableNumber, capacity, location } = req.body;
-    
+
     // Generate QR code URL (pointing to customer menu with table number)
-    const menuUrl = `http://localhost:3000/menu?table=${tableNumber}`;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const menuUrl = `${frontendUrl}/menu?table=${tableNumber}`;
     const qrCodeDataUrl = await QRCode.toDataURL(menuUrl);
     
     const table = new Table({
@@ -73,9 +74,10 @@ router.put('/:id/regenerate-qr', async (req, res) => {
     if (!table) {
       return res.status(404).json({ message: 'Table not found' });
     }
-    
+
     // Generate new QR code
-    const menuUrl = `http://localhost:3000/menu?table=${table.tableNumber}`;
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const menuUrl = `${frontendUrl}/menu?table=${table.tableNumber}`;
     const qrCodeDataUrl = await QRCode.toDataURL(menuUrl);
     
     table.qrCode = qrCodeDataUrl;

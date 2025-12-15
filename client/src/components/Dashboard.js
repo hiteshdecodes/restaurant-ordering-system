@@ -198,7 +198,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Initialize socket connection
-    const newSocket = io('http://localhost:5000');
+    const socketUrl = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
+    const newSocket = io(socketUrl);
     setSocket(newSocket);
 
     // Join dashboard room for real-time updates
@@ -384,7 +385,8 @@ const Dashboard = () => {
     setMenuItemImageFile(null);
     // Set image preview to the existing image URL
     if (item.image) {
-      setImagePreview(item.image.startsWith('http') ? item.image : `http://localhost:5000${item.image}`);
+      const apiHost = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
+      setImagePreview(item.image.startsWith('http') ? item.image : `${apiHost}${item.image}`);
     } else {
       setImagePreview(null);
     }
