@@ -39,7 +39,8 @@ const TableOrders = () => {
     fetchAllOrders();
 
     // Connect to Socket.io
-    const newSocket = io('http://localhost:5000');
+    const socketUrl = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
+    const newSocket = io(socketUrl);
     setSocket(newSocket);
 
     // Listen for new orders
@@ -96,7 +97,8 @@ const TableOrders = () => {
 
   const fetchTables = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/tables');
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      const response = await axios.get(`${apiUrl}/tables`);
       setTables(response.data);
     } catch (error) {
       console.error('Error fetching tables:', error);
@@ -105,7 +107,8 @@ const TableOrders = () => {
 
   const fetchAllOrders = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/orders');
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+      const response = await axios.get(`${apiUrl}/orders`);
       const ordersGrouped = {};
       response.data.forEach(order => {
         if (!ordersGrouped[order.tableNumber]) {
@@ -129,7 +132,8 @@ const TableOrders = () => {
   const handleClearOrderHistory = async (tableNumber) => {
     if (window.confirm(`Clear all orders for Table ${tableNumber}?`)) {
       try {
-        await axios.delete(`http://localhost:5000/api/orders/table/${tableNumber}`);
+        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+        await axios.delete(`${apiUrl}/orders/table/${tableNumber}`);
         setTableOrders(prev => ({
           ...prev,
           [tableNumber]: []
@@ -143,8 +147,9 @@ const TableOrders = () => {
 
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
     try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       const response = await axios.put(
-        `http://localhost:5000/api/orders/${orderId}/status`,
+        `${apiUrl}/orders/${orderId}/status`,
         { status: newStatus }
       );
       // Update local state

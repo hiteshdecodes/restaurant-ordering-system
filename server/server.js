@@ -12,10 +12,24 @@ console.log('Starting Restaurant Ordering System Server...');
 
 const app = express();
 const server = http.createServer(app);
+
+// Configure CORS for both development and production
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5000",
+  process.env.FRONTEND_URL || "http://localhost:3000"
+];
+
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST"]
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"]
   }
 });
 
