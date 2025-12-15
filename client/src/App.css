@@ -1,0 +1,106 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Optimized Transitions for Smooth Performance */
+
+/* MUI Tabs - Smooth indicator animation */
+.MuiTabs-indicator {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  will-change: left, width;
+}
+
+.MuiTab-root {
+  transition: color 0.2s ease-in-out !important;
+  will-change: color;
+}
+
+/* MUI Collapse - Smooth expand/collapse */
+.MuiCollapse-root {
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  will-change: height;
+}
+
+/* MUI Drawer - Smooth slide animation */
+.MuiDrawer-root {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  will-change: transform;
+}
+
+/* MUI Dialog - Smooth fade animation */
+.MuiDialog-root {
+  transition: opacity 0.2s ease-in-out !important;
+  will-change: opacity;
+}
+
+.MuiBackdrop-root {
+  transition: opacity 0.2s ease-in-out !important;
+  will-change: opacity;
+}
+
+/* MUI Button - Smooth hover effect */
+.MuiButton-root {
+  transition: all 0.2s ease-in-out !important;
+  will-change: background-color, color, box-shadow;
+}
+
+/* MUI Card - Smooth hover effect */
+.MuiCard-root {
+  transition: all 0.2s ease-in-out !important;
+  will-change: box-shadow, transform;
+}
+
+/* MUI Chip - Smooth transitions */
+.MuiChip-root {
+  transition: all 0.2s ease-in-out !important;
+  will-change: background-color, color;
+}
+
+/* General smooth transitions */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Disable animations on reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
