@@ -58,8 +58,7 @@ const CustomerMenu = () => {
   const [orderNote, setOrderNote] = useState('');
   const categoryRefs = useRef({});
 
-  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-  const API_HOST = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
+  const API_BASE = '/api';
 
   // Auto-logout customer after 120 minutes of inactivity
   useEffect(() => {
@@ -480,7 +479,7 @@ const CustomerMenu = () => {
                         {/* Item Image */}
                         <Box
                           component="img"
-                          src={item.image && !item.image.startsWith('http') ? `${API_HOST}${item.image}` : (item.image || '/api/placeholder/80/60')}
+                          src={item.image || '/api/placeholder/80/60'}
                           alt={item.name}
                           sx={{
                             width: 70,

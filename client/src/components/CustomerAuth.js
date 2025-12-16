@@ -15,7 +15,7 @@ import {
 import { Phone, Person, Lock } from '@mui/icons-material';
 import axios from 'axios';
 
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_BASE = '/api';
 
 const CustomerAuth = ({ open, onClose, onAuthenticated }) => {
   const [step, setStep] = useState(1); // 1: Phone, 2: OTP, 3: Name

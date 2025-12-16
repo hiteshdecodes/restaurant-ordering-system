@@ -133,7 +133,7 @@ const Dashboard = () => {
     location: ''
   });
 
-  const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+  const API_BASE = '/api';
 
   // Enhanced notification sound function
   const playNotificationSound = () => {
@@ -197,9 +197,8 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    // Initialize socket connection
-    const socketUrl = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
-    const newSocket = io(socketUrl);
+    // Initialize socket connection (use current domain)
+    const newSocket = io();
     setSocket(newSocket);
 
     // Join dashboard room for real-time updates
@@ -385,8 +384,7 @@ const Dashboard = () => {
     setMenuItemImageFile(null);
     // Set image preview to the existing image URL
     if (item.image) {
-      const apiHost = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
-      setImagePreview(item.image.startsWith('http') ? item.image : `${apiHost}${item.image}`);
+      setImagePreview(item.image.startsWith('http') ? item.image : item.image);
     } else {
       setImagePreview(null);
     }

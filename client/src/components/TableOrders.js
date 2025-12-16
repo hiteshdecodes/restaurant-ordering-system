@@ -97,8 +97,7 @@ const TableOrders = () => {
 
   const fetchTables = async () => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      const response = await axios.get(`${apiUrl}/tables`);
+      const response = await axios.get('/api/tables');
       setTables(response.data);
     } catch (error) {
       console.error('Error fetching tables:', error);
@@ -107,8 +106,7 @@ const TableOrders = () => {
 
   const fetchAllOrders = async () => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-      const response = await axios.get(`${apiUrl}/orders`);
+      const response = await axios.get('/api/orders');
       const ordersGrouped = {};
       response.data.forEach(order => {
         if (!ordersGrouped[order.tableNumber]) {
