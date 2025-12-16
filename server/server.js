@@ -141,10 +141,25 @@ app.use('/api/menu-items', require('./routes/menuItems'));
 app.use('/api/tables', require('./routes/tables'));
 app.use('/api/orders', require('./routes/orders'));
 
-// Basic route
-app.get('/', (req, res) => {
-  res.json({ message: 'Restaurant Ordering System API' });
-});
+// Serve React build files
+const buildPath = path.join(__dirname, '../client/build');
+if (fs.existsSync(buildPath)) {
+  app.use(express.static(buildPath));
+
+  // Handle SPA routing - serve index.html for all non-API routes
+  app.get('*', (req, res) => {
+    // Don't serve index.html for API routes
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({ message: 'API route not found' });
+    }
+    res.sendFile(path.join(buildPath, 'index.html'));
+  });
+} else {
+  // Fallback for development
+  app.get('/', (req, res) => {
+    res.json({ message: 'Restaurant Ordering System API' });
+  });
+}
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
