@@ -134,12 +134,17 @@ io.on('connection', (socket) => {
 // Make io available to routes
 app.set('io', io);
 
-// Routes
+// API Routes - MUST be before static files and SPA routing
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/categories', require('./routes/categories'));
 app.use('/api/menu-items', require('./routes/menuItems'));
 app.use('/api/tables', require('./routes/tables'));
 app.use('/api/orders', require('./routes/orders'));
+
+// 404 handler for API routes
+app.use('/api', (req, res) => {
+  res.status(404).json({ message: 'API route not found' });
+});
 
 // Serve React build files
 const buildPath = path.join(__dirname, '../client/build');
@@ -148,10 +153,6 @@ if (fs.existsSync(buildPath)) {
 
   // Handle SPA routing - serve index.html for all non-API routes
   app.get('*', (req, res) => {
-    // Don't serve index.html for API routes
-    if (req.path.startsWith('/api')) {
-      return res.status(404).json({ message: 'API route not found' });
-    }
     res.sendFile(path.join(buildPath, 'index.html'));
   });
 } else {
