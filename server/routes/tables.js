@@ -32,7 +32,10 @@ router.post('/', async (req, res) => {
     const { tableNumber, capacity, location } = req.body;
 
     // Generate QR code URL (pointing to customer menu with table number)
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    // Use the request origin to determine the frontend URL
+    const protocol = req.protocol || 'https';
+    const host = req.get('host') || 'localhost:3000';
+    const frontendUrl = `${protocol}://${host}`;
     const menuUrl = `${frontendUrl}/menu?table=${tableNumber}`;
     const qrCodeDataUrl = await QRCode.toDataURL(menuUrl);
     
@@ -76,7 +79,9 @@ router.put('/:id/regenerate-qr', async (req, res) => {
     }
 
     // Generate new QR code
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+    const protocol = req.protocol || 'https';
+    const host = req.get('host') || 'localhost:3000';
+    const frontendUrl = `${protocol}://${host}`;
     const menuUrl = `${frontendUrl}/menu?table=${table.tableNumber}`;
     const qrCodeDataUrl = await QRCode.toDataURL(menuUrl);
     

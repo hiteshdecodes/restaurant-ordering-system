@@ -22,14 +22,9 @@ const allowedOrigins = [
 
 const io = socketIo(server, {
   cors: {
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE"]
+    origin: true, // Allow all origins for Socket.io
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
   }
 });
 

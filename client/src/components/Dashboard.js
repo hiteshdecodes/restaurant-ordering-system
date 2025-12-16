@@ -523,6 +523,20 @@ const Dashboard = () => {
 
   const handleCreateTable = async () => {
     try {
+      // Validation
+      if (!newTable.tableNumber || newTable.tableNumber.trim() === '') {
+        alert('Please enter a table number');
+        return;
+      }
+      if (!newTable.capacity || newTable.capacity === '') {
+        alert('Please enter table capacity');
+        return;
+      }
+      if (parseInt(newTable.capacity) < 1) {
+        alert('Capacity must be at least 1');
+        return;
+      }
+
       if (editingTable) {
         // Update existing table
         await axios.put(`${API_BASE}/tables/${editingTable._id}`, {
@@ -542,6 +556,7 @@ const Dashboard = () => {
       fetchTables();
     } catch (error) {
       console.error('Error creating table:', error);
+      alert('Error: ' + (error.response?.data?.message || error.message));
     }
   };
 

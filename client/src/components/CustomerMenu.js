@@ -89,11 +89,36 @@ const CustomerMenu = () => {
     };
   }, []);
 
+  // Validate table exists
+  const validateTable = async (tableNum) => {
+    try {
+      const response = await axios.get(`${API_BASE}/tables`);
+      const tables = response.data;
+      const tableExists = tables.some(t => t.tableNumber === tableNum);
+
+      if (!tableExists) {
+        alert(`Table ${tableNum} does not exist. Please use a valid table number.`);
+        window.location.href = '/';
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error('Error validating table:', error);
+      return true; // Allow access if validation fails
+    }
+  };
+
   useEffect(() => {
     // Get table number from URL params
     const urlParams = new URLSearchParams(window.location.search);
     const table = urlParams.get('table') || '1';
-    setTableNumber(table);
+
+    // Validate table exists
+    validateTable(table).then(isValid => {
+      if (isValid) {
+        setTableNumber(table);
+      }
+    });
 
     // Check for existing customer authentication
     const savedCustomer = localStorage.getItem('customerData');
