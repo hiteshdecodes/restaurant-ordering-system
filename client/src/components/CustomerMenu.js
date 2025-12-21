@@ -60,10 +60,10 @@ const CustomerMenu = () => {
 
   const API_BASE = '/api';
 
-  // Auto-logout customer after 120 minutes of inactivity
+  // Auto-logout customer after 2 hours of inactivity (customer side only, not dashboard)
   useEffect(() => {
     let timeoutId;
-    const CUSTOMER_SESSION_DURATION = 120 * 60 * 1000; // 120 minutes
+    const CUSTOMER_SESSION_DURATION = 2 * 60 * 60 * 1000; // 2 hours
 
     const resetCustomerTimeout = () => {
       clearTimeout(timeoutId);

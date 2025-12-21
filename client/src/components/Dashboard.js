@@ -107,6 +107,9 @@ const Dashboard = () => {
   const [categoryDialog, setCategoryDialog] = useState(false);
   const [tableDialog, setTableDialog] = useState(false);
   const [clearAllDialog, setClearAllDialog] = useState(false);
+  const [editOrderDialog, setEditOrderDialog] = useState(false);
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [editOrderItems, setEditOrderItems] = useState([]);
 
   // Form states
   const [newMenuItem, setNewMenuItem] = useState({
@@ -305,6 +308,53 @@ const Dashboard = () => {
     } catch (error) {
       console.error('Error updating order status:', error);
     }
+  };
+
+  const handleEditOrder = (order) => {
+    setEditingOrder(order);
+    setEditOrderItems(order.items.map(item => ({
+      ...item,
+      menuItem: item.menuItem._id || item.menuItem
+    })));
+    setEditOrderDialog(true);
+  };
+
+  const handleSaveEditOrder = async () => {
+    try {
+      if (editOrderItems.length === 0) {
+        alert('Order must contain at least one item');
+        return;
+      }
+
+      // Calculate new total
+      const newTotal = editOrderItems.reduce((sum, item) => {
+        return sum + (item.price * item.quantity);
+      }, 0);
+
+      await axios.put(`${API_BASE}/orders/${editingOrder._id}/edit-items`, {
+        items: editOrderItems,
+        totalAmount: newTotal
+      });
+
+      setEditOrderDialog(false);
+      setEditingOrder(null);
+      setEditOrderItems([]);
+      fetchOrders();
+    } catch (error) {
+      console.error('Error editing order:', error);
+      alert('Error: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleRemoveEditItem = (index) => {
+    setEditOrderItems(editOrderItems.filter((_, i) => i !== index));
+  };
+
+  const handleUpdateEditItemQuantity = (index, newQuantity) => {
+    if (newQuantity < 1) return;
+    const updated = [...editOrderItems];
+    updated[index].quantity = newQuantity;
+    setEditOrderItems(updated);
   };
 
   const getStatusColor = (status) => {
@@ -934,12 +984,20 @@ const Dashboard = () => {
                           </IconButton>
                         )}
                       </TableCell>
-                  <TableCell sx={{ fontSize: '11px', py: 0.8, px: 1.2 }}>
+                  <TableCell sx={{ fontSize: '11px', py: 0.8, px: 1.2, display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleEditOrder(order)}
+                      sx={{ color: '#ff6b35', '&:hover': { bgcolor: '#fff3e0' } }}
+                      title="Edit order items"
+                    >
+                      <EditIcon sx={{ fontSize: '16px' }} />
+                    </IconButton>
                     <Select
                       value={order.status}
                       onChange={(e) => updateOrderStatus(order._id, e.target.value)}
                       size="small"
-                      sx={{ fontSize: '11px', height: '28px' }}
+                      sx={{ fontSize: '11px', height: '28px', flex: 1 }}
                     >
                       <MenuItem value="pending">Pending</MenuItem>
                       <MenuItem value="confirmed">Confirmed</MenuItem>
@@ -948,6 +1006,13 @@ const Dashboard = () => {
                       <MenuItem value="served">Served</MenuItem>
                       <MenuItem value="cancelled">Cancelled</MenuItem>
                     </Select>
+                    {order.isEdited && (
+                      <Chip
+                        label="Edited"
+                        size="small"
+                        sx={{ fontSize: '9px', height: '20px', bgcolor: '#fff3e0', color: '#ff6b35' }}
+                      />
+                    )}
                   </TableCell>
                 </TableRow>
                   ))
@@ -1632,6 +1697,78 @@ const Dashboard = () => {
         <DialogActions>
           <Button onClick={() => setNoteDialogOpen(false)} sx={{ color: '#2d5016' }}>
             Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Order Dialog */}
+      <Dialog open={editOrderDialog} onClose={() => setEditOrderDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 600, color: '#2d5016' }}>
+          Edit Order #{editingOrder?.orderNumber}
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <Typography sx={{ fontSize: '12px', color: '#666', mb: 1.5 }}>
+              Order Items:
+            </Typography>
+            <List sx={{ bgcolor: '#f9f9f9', borderRadius: '6px', mb: 2 }}>
+              {editOrderItems.map((item, index) => (
+                <Box key={index}>
+                  <ListItem sx={{ py: 1, px: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography sx={{ fontSize: '13px', fontWeight: 500 }}>
+                        {typeof item.menuItem === 'object' ? item.menuItem.name : 'Item'}
+                      </Typography>
+                      <Typography sx={{ fontSize: '11px', color: '#999' }}>
+                        ₹{item.price} x {item.quantity} = ₹{item.price * item.quantity}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleUpdateEditItemQuantity(index, item.quantity - 1)}
+                        sx={{ color: '#ff6b35' }}
+                      >
+                        <RemoveIcon sx={{ fontSize: '16px' }} />
+                      </IconButton>
+                      <Typography sx={{ fontSize: '12px', minWidth: '20px', textAlign: 'center' }}>
+                        {item.quantity}
+                      </Typography>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleUpdateEditItemQuantity(index, item.quantity + 1)}
+                        sx={{ color: '#ff6b35' }}
+                      >
+                        <AddIcon sx={{ fontSize: '16px' }} />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleRemoveEditItem(index)}
+                        sx={{ color: '#c62828' }}
+                      >
+                        <DeleteIcon sx={{ fontSize: '16px' }} />
+                      </IconButton>
+                    </Box>
+                  </ListItem>
+                  {index < editOrderItems.length - 1 && <Divider />}
+                </Box>
+              ))}
+            </List>
+            <Box sx={{ bgcolor: '#f0f0f0', p: 1.5, borderRadius: '6px', mb: 2 }}>
+              <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#1a1a1a' }}>
+                New Total: ₹{editOrderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)}
+              </Typography>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditOrderDialog(false)}>Cancel</Button>
+          <Button
+            onClick={handleSaveEditOrder}
+            variant="contained"
+            sx={{ bgcolor: '#ff6b35', '&:hover': { bgcolor: '#e55a24' } }}
+          >
+            Save Changes
           </Button>
         </DialogActions>
       </Dialog>

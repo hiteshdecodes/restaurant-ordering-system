@@ -19,7 +19,8 @@ import {
   Select,
   MenuItem
 } from '@mui/material';
-import { Delete as DeleteIcon, Close as CloseIcon, Note as NoteIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Close as CloseIcon, Note as NoteIcon, Edit as EditIcon, Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material';
+import { List, ListItem } from '@mui/material';
 import axios from 'axios';
 import io from 'socket.io-client';
 import NotificationCenter from './NotificationCenter';
@@ -33,14 +34,16 @@ const TableOrders = () => {
   const [socket, setSocket] = useState(null);
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [selectedOrderNote, setSelectedOrderNote] = useState('');
+  const [editOrderDialog, setEditOrderDialog] = useState(false);
+  const [editingOrder, setEditingOrder] = useState(null);
+  const [editOrderItems, setEditOrderItems] = useState([]);
 
   useEffect(() => {
     fetchTables();
     fetchAllOrders();
 
-    // Connect to Socket.io
-    const socketUrl = process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
-    const newSocket = io(socketUrl);
+    // Connect to Socket.io (use current domain)
+    const newSocket = io();
     setSocket(newSocket);
 
     // Listen for new orders
@@ -127,11 +130,12 @@ const TableOrders = () => {
     setOrderDialogOpen(true);
   };
 
+  const API_BASE = '/api';
+
   const handleClearOrderHistory = async (tableNumber) => {
     if (window.confirm(`Clear all orders for Table ${tableNumber}?`)) {
       try {
-        const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-        await axios.delete(`${apiUrl}/orders/table/${tableNumber}`);
+        await axios.delete(`${API_BASE}/orders/table/${tableNumber}`);
         setTableOrders(prev => ({
           ...prev,
           [tableNumber]: []
@@ -145,9 +149,8 @@ const TableOrders = () => {
 
   const handleUpdateOrderStatus = async (orderId, newStatus) => {
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
       const response = await axios.put(
-        `${apiUrl}/orders/${orderId}/status`,
+        `${API_BASE}/orders/${orderId}/status`,
         { status: newStatus }
       );
       // Update local state
@@ -164,6 +167,64 @@ const TableOrders = () => {
     } catch (error) {
       console.error('Error updating order status:', error);
     }
+  };
+
+  const handleEditOrder = (order) => {
+    setEditingOrder(order);
+    setEditOrderItems(order.items.map(item => ({
+      ...item,
+      menuItem: item.menuItem._id || item.menuItem
+    })));
+    setEditOrderDialog(true);
+  };
+
+  const handleSaveEditOrder = async () => {
+    try {
+      if (editOrderItems.length === 0) {
+        alert('Order must contain at least one item');
+        return;
+      }
+
+      // Calculate new total
+      const newTotal = editOrderItems.reduce((sum, item) => {
+        return sum + (item.price * item.quantity);
+      }, 0);
+
+      const response = await axios.put(`${API_BASE}/orders/${editingOrder._id}/edit-items`, {
+        items: editOrderItems,
+        totalAmount: newTotal
+      });
+
+      // Update local state
+      setTableOrders(prev => {
+        const updated = { ...prev };
+        const tableNum = selectedTable.tableNumber;
+        if (updated[tableNum]) {
+          updated[tableNum] = updated[tableNum].map(order =>
+            order._id === editingOrder._id ? response.data : order
+          );
+        }
+        return updated;
+      });
+
+      setEditOrderDialog(false);
+      setEditingOrder(null);
+      setEditOrderItems([]);
+    } catch (error) {
+      console.error('Error editing order:', error);
+      alert('Error: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleRemoveEditItem = (index) => {
+    setEditOrderItems(editOrderItems.filter((_, i) => i !== index));
+  };
+
+  const handleUpdateEditItemQuantity = (index, newQuantity) => {
+    if (newQuantity < 1) return;
+    const updated = [...editOrderItems];
+    updated[index].quantity = newQuantity;
+    setEditOrderItems(updated);
   };
 
   const getStatusColor = (status) => {
@@ -480,37 +541,54 @@ const TableOrders = () => {
                     </Box>
                   )}
 
-                  {/* Status Change Dropdown */}
+                  {/* Status Change Dropdown and Edit Button */}
                   <Box sx={{ mb: 0 }}>
                     <Typography variant="caption" fontWeight="bold" sx={{ color: '#666', mb: 0.4, display: 'block', fontSize: '9px' }}>
-                      STATUS
+                      STATUS & ACTIONS
                     </Typography>
-                    <Select
-                      value={order.status}
-                      onChange={(e) => handleUpdateOrderStatus(order._id, e.target.value)}
-                      size="small"
-                      fullWidth
-                      sx={{
-                        fontSize: '11px',
-                        height: '28px',
-                        borderRadius: 1,
-                        '& .MuiOutlinedInput-root': {
-                          '& fieldset': {
-                            borderColor: '#ff6b35'
-                          },
-                          '&:hover fieldset': {
-                            borderColor: '#ff6b35'
+                    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleEditOrder(order)}
+                        sx={{ color: '#ff6b35', '&:hover': { bgcolor: '#fff3e0' }, flex: 0 }}
+                        title="Edit order items"
+                      >
+                        <EditIcon sx={{ fontSize: '16px' }} />
+                      </IconButton>
+                      <Select
+                        value={order.status}
+                        onChange={(e) => handleUpdateOrderStatus(order._id, e.target.value)}
+                        size="small"
+                        fullWidth
+                        sx={{
+                          fontSize: '11px',
+                          height: '28px',
+                          borderRadius: 1,
+                          '& .MuiOutlinedInput-root': {
+                            '& fieldset': {
+                              borderColor: '#ff6b35'
+                            },
+                            '&:hover fieldset': {
+                              borderColor: '#ff6b35'
+                            }
                           }
-                        }
-                      }}
-                    >
-                      <MenuItem value="pending">Pending</MenuItem>
-                      <MenuItem value="confirmed">Confirmed</MenuItem>
-                      <MenuItem value="preparing">Preparing</MenuItem>
-                      <MenuItem value="ready">Ready</MenuItem>
-                      <MenuItem value="served">Served</MenuItem>
-                      <MenuItem value="cancelled">Cancelled</MenuItem>
-                    </Select>
+                        }}
+                      >
+                        <MenuItem value="pending">Pending</MenuItem>
+                        <MenuItem value="confirmed">Confirmed</MenuItem>
+                        <MenuItem value="preparing">Preparing</MenuItem>
+                        <MenuItem value="ready">Ready</MenuItem>
+                        <MenuItem value="served">Served</MenuItem>
+                        <MenuItem value="cancelled">Cancelled</MenuItem>
+                      </Select>
+                      {order.isEdited && (
+                        <Chip
+                          label="Edited"
+                          size="small"
+                          sx={{ fontSize: '9px', height: '20px', bgcolor: '#fff3e0', color: '#ff6b35', flex: 0 }}
+                        />
+                      )}
+                    </Box>
                   </Box>
                 </Box>
               ))}
@@ -574,6 +652,78 @@ const TableOrders = () => {
         <DialogActions>
           <Button onClick={() => setNoteDialogOpen(false)} sx={{ color: '#2d5016' }}>
             Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Order Dialog */}
+      <Dialog open={editOrderDialog} onClose={() => setEditOrderDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 600, color: '#2d5016' }}>
+          Edit Order #{editingOrder?.orderNumber}
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <Typography sx={{ fontSize: '12px', color: '#666', mb: 1.5 }}>
+              Order Items:
+            </Typography>
+            <List sx={{ bgcolor: '#f9f9f9', borderRadius: '6px', mb: 2 }}>
+              {editOrderItems.map((item, index) => (
+                <Box key={index}>
+                  <ListItem sx={{ py: 1, px: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography sx={{ fontSize: '13px', fontWeight: 500 }}>
+                        {typeof item.menuItem === 'object' ? item.menuItem.name : 'Item'}
+                      </Typography>
+                      <Typography sx={{ fontSize: '11px', color: '#999' }}>
+                        ₹{item.price} x {item.quantity} = ₹{item.price * item.quantity}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleUpdateEditItemQuantity(index, item.quantity - 1)}
+                        sx={{ color: '#ff6b35' }}
+                      >
+                        <RemoveIcon sx={{ fontSize: '16px' }} />
+                      </IconButton>
+                      <Typography sx={{ fontSize: '12px', minWidth: '20px', textAlign: 'center' }}>
+                        {item.quantity}
+                      </Typography>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleUpdateEditItemQuantity(index, item.quantity + 1)}
+                        sx={{ color: '#ff6b35' }}
+                      >
+                        <AddIcon sx={{ fontSize: '16px' }} />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleRemoveEditItem(index)}
+                        sx={{ color: '#c62828' }}
+                      >
+                        <DeleteIcon sx={{ fontSize: '16px' }} />
+                      </IconButton>
+                    </Box>
+                  </ListItem>
+                  {index < editOrderItems.length - 1 && <Divider />}
+                </Box>
+              ))}
+            </List>
+            <Box sx={{ bgcolor: '#f0f0f0', p: 1.5, borderRadius: '6px', mb: 2 }}>
+              <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#1a1a1a' }}>
+                New Total: ₹{editOrderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)}
+              </Typography>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEditOrderDialog(false)}>Cancel</Button>
+          <Button
+            onClick={handleSaveEditOrder}
+            variant="contained"
+            sx={{ bgcolor: '#ff6b35', '&:hover': { bgcolor: '#e55a24' } }}
+          >
+            Save Changes
           </Button>
         </DialogActions>
       </Dialog>

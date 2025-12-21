@@ -58,7 +58,21 @@ const orderSchema = new mongoose.Schema({
   estimatedTime: {
     type: Number, // in minutes
     default: 30
-  }
+  },
+  isEdited: {
+    type: Boolean,
+    default: false
+  },
+  editHistory: [{
+    editedAt: {
+      type: Date,
+      default: Date.now
+    },
+    changes: {
+      type: String,
+      default: ''
+    }
+  }]
 }, {
   timestamps: true
 });

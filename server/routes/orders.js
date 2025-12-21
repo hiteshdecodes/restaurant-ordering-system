@@ -93,6 +93,48 @@ router.put('/:id/status', async (req, res) => {
   }
 });
 
+// PUT edit order items (add/remove items)
+router.put('/:id/edit-items', async (req, res) => {
+  try {
+    const { items, totalAmount } = req.body;
+
+    if (!items || items.length === 0) {
+      return res.status(400).json({ message: 'Order must contain at least one item' });
+    }
+
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Track changes
+    const oldTotal = order.totalAmount;
+    const oldItemCount = order.items.length;
+    const newItemCount = items.length;
+
+    // Update order
+    order.items = items;
+    order.totalAmount = totalAmount;
+    order.isEdited = true;
+    order.editHistory.push({
+      editedAt: new Date(),
+      changes: `Items changed from ${oldItemCount} to ${newItemCount}, Total: ${oldTotal} → ${totalAmount}`
+    });
+
+    const updatedOrder = await order.save();
+    const populatedOrder = await Order.findById(updatedOrder._id)
+      .populate('items.menuItem', 'name price image');
+
+    // Emit real-time update to ALL connected clients
+    const io = req.app.get('io');
+    io.emit('order-updated', populatedOrder);
+
+    res.json(populatedOrder);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 // PUT update entire order
 router.put('/:id', async (req, res) => {
   try {
@@ -101,11 +143,11 @@ router.put('/:id', async (req, res) => {
       req.body,
       { new: true, runValidators: true }
     ).populate('items.menuItem', 'name price image');
-    
+
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    
+
     // Emit real-time update to ALL connected clients
     const io = req.app.get('io');
     io.emit('order-updated', order);
