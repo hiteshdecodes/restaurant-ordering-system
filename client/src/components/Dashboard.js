@@ -111,6 +111,8 @@ const Dashboard = () => {
   const [editOrderDialog, setEditOrderDialog] = useState(false);
   const [editingOrder, setEditingOrder] = useState(null);
   const [editOrderItems, setEditOrderItems] = useState([]);
+  const [selectedAddItem, setSelectedAddItem] = useState(null);
+  const [addItemQuantity, setAddItemQuantity] = useState(1);
 
   // Form states
   const [newMenuItem, setNewMenuItem] = useState({
@@ -313,9 +315,9 @@ const Dashboard = () => {
 
   const handleEditOrder = (order) => {
     setEditingOrder(order);
+    // Keep the full menuItem object for display
     setEditOrderItems(order.items.map(item => ({
-      ...item,
-      menuItem: item.menuItem._id || item.menuItem
+      ...item
     })));
     setEditOrderDialog(true);
   };
@@ -356,6 +358,39 @@ const Dashboard = () => {
     const updated = [...editOrderItems];
     updated[index].quantity = newQuantity;
     setEditOrderItems(updated);
+  };
+
+  const handleAddItemToOrder = () => {
+    if (!selectedAddItem) {
+      alert('Please select an item');
+      return;
+    }
+
+    // Check if item already exists in order
+    const existingItemIndex = editOrderItems.findIndex(
+      item => (item.menuItem._id || item.menuItem) === (selectedAddItem._id || selectedAddItem)
+    );
+
+    if (existingItemIndex >= 0) {
+      // Item already exists, just increase quantity
+      const updated = [...editOrderItems];
+      updated[existingItemIndex].quantity += addItemQuantity;
+      setEditOrderItems(updated);
+    } else {
+      // Add new item
+      setEditOrderItems([
+        ...editOrderItems,
+        {
+          menuItem: selectedAddItem,
+          price: selectedAddItem.price,
+          quantity: addItemQuantity
+        }
+      ]);
+    }
+
+    // Reset form
+    setSelectedAddItem(null);
+    setAddItemQuantity(1);
   };
 
   const getStatusColor = (status) => {
@@ -1709,8 +1744,8 @@ const Dashboard = () => {
         </DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
-            <Typography sx={{ fontSize: '12px', color: '#666', mb: 1.5 }}>
-              Order Items:
+            <Typography sx={{ fontSize: '12px', color: '#666', mb: 1.5, fontWeight: 600 }}>
+              Current Items:
             </Typography>
             <List sx={{ bgcolor: '#f9f9f9', borderRadius: '6px', mb: 2 }}>
               {editOrderItems.map((item, index) => (
@@ -1755,6 +1790,50 @@ const Dashboard = () => {
                 </Box>
               ))}
             </List>
+
+            {/* Add New Item Section */}
+            <Typography sx={{ fontSize: '12px', color: '#666', mb: 1.5, fontWeight: 600 }}>
+              Add New Item:
+            </Typography>
+            <Box sx={{ bgcolor: '#f9f9f9', p: 1.5, borderRadius: '6px', mb: 2 }}>
+              <FormControl fullWidth size="small" sx={{ mb: 1 }}>
+                <InputLabel>Select Item</InputLabel>
+                <Select
+                  value={selectedAddItem ? selectedAddItem._id : ''}
+                  onChange={(e) => {
+                    const item = menuItems.find(m => m._id === e.target.value);
+                    setSelectedAddItem(item);
+                  }}
+                  label="Select Item"
+                >
+                  {menuItems.map(item => (
+                    <MenuItem key={item._id} value={item._id}>
+                      {item.name} - ₹{item.price}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <TextField
+                  type="number"
+                  label="Qty"
+                  size="small"
+                  value={addItemQuantity}
+                  onChange={(e) => setAddItemQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                  inputProps={{ min: 1 }}
+                  sx={{ width: '80px' }}
+                />
+                <Button
+                  onClick={handleAddItemToOrder}
+                  variant="contained"
+                  size="small"
+                  sx={{ bgcolor: '#ff6b35', '&:hover': { bgcolor: '#e55a24' }, flex: 1 }}
+                >
+                  Add Item
+                </Button>
+              </Box>
+            </Box>
+
             <Box sx={{ bgcolor: '#f0f0f0', p: 1.5, borderRadius: '6px', mb: 2 }}>
               <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#1a1a1a' }}>
                 New Total: ₹{editOrderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)}

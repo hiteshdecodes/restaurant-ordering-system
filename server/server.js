@@ -133,6 +133,7 @@ app.set('io', io);
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/categories', require('./routes/categories'));
 app.use('/api/menu-items', require('./routes/menuItems'));
+app.use('/api/table-categories', require('./routes/tableCategories'));
 app.use('/api/tables', require('./routes/tables'));
 app.use('/api/orders', require('./routes/orders'));
 

@@ -22,6 +22,11 @@ const tableSchema = new mongoose.Schema({
   location: {
     type: String, // e.g., "Ground Floor", "First Floor", "Terrace"
     default: ''
+  },
+  category: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'TableCategory',
+    default: null
   }
 }, {
   timestamps: true

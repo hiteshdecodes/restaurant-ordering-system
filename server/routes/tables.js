@@ -6,7 +6,7 @@ const Table = require('../models/Table');
 // GET all tables
 router.get('/', async (req, res) => {
   try {
-    const tables = await Table.find({ isActive: true }).sort({ tableNumber: 1 });
+    const tables = await Table.find({ isActive: true }).populate('category').sort({ tableNumber: 1 });
     res.json(tables);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
 // GET single table
 router.get('/:id', async (req, res) => {
   try {
-    const table = await Table.findById(req.params.id);
+    const table = await Table.findById(req.params.id).populate('category');
     if (!table) {
       return res.status(404).json({ message: 'Table not found' });
     }
@@ -29,7 +29,7 @@ router.get('/:id', async (req, res) => {
 // POST create new table with QR code
 router.post('/', async (req, res) => {
   try {
-    const { tableNumber, capacity, location } = req.body;
+    const { tableNumber, capacity, location, category } = req.body;
 
     // Generate QR code URL (pointing to customer menu with table number)
     // Use the request origin to determine the frontend URL
@@ -38,16 +38,18 @@ router.post('/', async (req, res) => {
     const frontendUrl = `${protocol}://${host}`;
     const menuUrl = `${frontendUrl}/menu?table=${tableNumber}`;
     const qrCodeDataUrl = await QRCode.toDataURL(menuUrl);
-    
+
     const table = new Table({
       tableNumber,
       capacity,
       location,
+      category: category || null,
       qrCode: qrCodeDataUrl
     });
-    
+
     const savedTable = await table.save();
-    res.status(201).json(savedTable);
+    const populatedTable = await savedTable.populate('category');
+    res.status(201).json(populatedTable);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -60,7 +62,7 @@ router.put('/:id', async (req, res) => {
       req.params.id,
       req.body,
       { new: true, runValidators: true }
-    );
+    ).populate('category');
     if (!table) {
       return res.status(404).json({ message: 'Table not found' });
     }
@@ -84,11 +86,12 @@ router.put('/:id/regenerate-qr', async (req, res) => {
     const frontendUrl = `${protocol}://${host}`;
     const menuUrl = `${frontendUrl}/menu?table=${table.tableNumber}`;
     const qrCodeDataUrl = await QRCode.toDataURL(menuUrl);
-    
+
     table.qrCode = qrCodeDataUrl;
     const updatedTable = await table.save();
-    
-    res.json(updatedTable);
+    const populatedTable = await updatedTable.populate('category');
+
+    res.json(populatedTable);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
