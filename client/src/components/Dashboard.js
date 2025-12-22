@@ -79,6 +79,7 @@ const Dashboard = () => {
   const [categories, setCategories] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [tables, setTables] = useState([]);
+  const [tableCategories, setTableCategories] = useState([]);
   const [socket, setSocket] = useState(null);
   const [newOrderAlert, setNewOrderAlert] = useState(false);
   const [notifications, setNotifications] = useState([]);
@@ -107,12 +108,14 @@ const Dashboard = () => {
   const [menuItemDialog, setMenuItemDialog] = useState(false);
   const [categoryDialog, setCategoryDialog] = useState(false);
   const [tableDialog, setTableDialog] = useState(false);
+  const [tableCategoryDialog, setTableCategoryDialog] = useState(false);
   const [clearAllDialog, setClearAllDialog] = useState(false);
   const [editOrderDialog, setEditOrderDialog] = useState(false);
   const [editingOrder, setEditingOrder] = useState(null);
   const [editOrderItems, setEditOrderItems] = useState([]);
   const [selectedAddItem, setSelectedAddItem] = useState(null);
   const [addItemQuantity, setAddItemQuantity] = useState(1);
+  const [editingTableCategory, setEditingTableCategory] = useState(null);
 
   // Form states
   const [newMenuItem, setNewMenuItem] = useState({
@@ -136,7 +139,15 @@ const Dashboard = () => {
   const [newTable, setNewTable] = useState({
     tableNumber: '',
     capacity: '',
-    location: ''
+    location: '',
+    category: ''
+  });
+
+  const [newTableCategory, setNewTableCategory] = useState({
+    name: '',
+    description: '',
+    color: '#ff6b35',
+    icon: 'category'
   });
 
   const API_BASE = '/api';
@@ -248,6 +259,7 @@ const Dashboard = () => {
     fetchCategories();
     fetchMenuItems();
     fetchTables();
+    fetchTableCategories();
     calculateStats();
 
     return () => newSocket.close();
@@ -286,6 +298,15 @@ const Dashboard = () => {
       setTables(response.data);
     } catch (error) {
       console.error('Error fetching tables:', error);
+    }
+  };
+
+  const fetchTableCategories = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/table-categories`);
+      setTableCategories(response.data);
+    } catch (error) {
+      console.error('Error fetching table categories:', error);
     }
   };
 
@@ -638,12 +659,72 @@ const Dashboard = () => {
       }
       setTableDialog(false);
       setEditingTable(null);
-      setNewTable({ tableNumber: '', capacity: '', location: '' });
+      setNewTable({ tableNumber: '', capacity: '', location: '', category: '' });
       fetchTables();
     } catch (error) {
       console.error('Error creating table:', error);
       alert('Error: ' + (error.response?.data?.message || error.message));
     }
+  };
+
+  const handleEditTable = (table) => {
+    setEditingTable(table);
+    setNewTable({
+      tableNumber: table.tableNumber,
+      capacity: table.capacity,
+      location: table.location,
+      category: table.category?._id || ''
+    });
+    setTableDialog(true);
+  };
+
+  const handleCreateTableCategory = async () => {
+    try {
+      if (!newTableCategory.name || newTableCategory.name.trim() === '') {
+        alert('Please enter a category name');
+        return;
+      }
+
+      if (editingTableCategory) {
+        // Update existing category
+        await axios.put(`${API_BASE}/table-categories/${editingTableCategory._id}`, newTableCategory);
+      } else {
+        // Create new category
+        await axios.post(`${API_BASE}/table-categories`, newTableCategory);
+      }
+
+      setTableCategoryDialog(false);
+      setEditingTableCategory(null);
+      setNewTableCategory({ name: '', description: '', color: '#ff6b35', icon: 'category' });
+      fetchTableCategories();
+    } catch (error) {
+      console.error('Error creating table category:', error);
+      alert('Error: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleDeleteTableCategory = async (categoryId) => {
+    if (window.confirm('Are you sure you want to delete this category?')) {
+      try {
+        await axios.delete(`${API_BASE}/table-categories/${categoryId}`);
+        fetchTableCategories();
+        fetchTables();
+      } catch (error) {
+        console.error('Error deleting table category:', error);
+        alert('Error: ' + (error.response?.data?.message || error.message));
+      }
+    }
+  };
+
+  const handleEditTableCategory = (category) => {
+    setEditingTableCategory(category);
+    setNewTableCategory({
+      name: category.name,
+      description: category.description,
+      color: category.color,
+      icon: category.icon
+    });
+    setTableCategoryDialog(true);
   };
 
   const groupOrdersByDate = (ordersToGroup) => {
@@ -817,6 +898,7 @@ const Dashboard = () => {
           <Tab label="Table Orders" />
           <Tab label="Menu Items" />
           <Tab label="Categories" />
+          <Tab label="Table Categories" />
           <Tab label="Tables" />
         </Tabs>
       </Box>
@@ -1300,13 +1382,84 @@ const Dashboard = () => {
         </Box>
       )}
 
-      {/* Tables Tab */}
+      {/* Table Categories Tab */}
       {activeTab === 4 && (
         <Box>
           <Box sx={{ mb: 1.5 }}>
             <Button
               variant="contained"
-              onClick={() => setTableDialog(true)}
+              onClick={() => {
+                setEditingTableCategory(null);
+                setNewTableCategory({ name: '', description: '', color: '#ff6b35', icon: 'category' });
+                setTableCategoryDialog(true);
+              }}
+              sx={{
+                bgcolor: '#ff6b35',
+                color: 'white',
+                fontSize: '12px',
+                py: 0.6,
+                px: 1.5,
+                textTransform: 'none',
+                '&:hover': { bgcolor: '#e55a24' }
+              }}
+              startIcon={<AddIcon sx={{ fontSize: '16px' }} />}
+            >
+              Add Category
+            </Button>
+          </Box>
+          <Grid container spacing={1.2}>
+            {tableCategories.sort((a, b) => a.order - b.order).map((category) => (
+              <Grid item xs={12} sm={6} md={4} key={category._id}>
+                <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderLeft: `4px solid ${category.color}` }}>
+                  <CardContent sx={{ py: 1.2, px: 1.2 }}>
+                    <Typography sx={{ fontWeight: 700, fontSize: '16px', color: '#2d5016', mb: 0.5 }}>
+                      {category.name}
+                    </Typography>
+                    <Typography sx={{ fontSize: '11px', color: '#999', mb: 1 }}>
+                      {category.description || 'No description'}
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-start', mb: 1 }}>
+                      <Chip
+                        label={`${tables.filter(t => t.category?._id === category._id).length} tables`}
+                        size="small"
+                        sx={{ fontSize: '10px', height: '20px' }}
+                      />
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                      <IconButton
+                        onClick={() => handleEditTableCategory(category)}
+                        size="small"
+                        sx={{ color: '#ff6b35', fontSize: '16px' }}
+                      >
+                        <EditIcon sx={{ fontSize: '16px' }} />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => handleDeleteTableCategory(category._id)}
+                        size="small"
+                        sx={{ color: '#c62828', fontSize: '16px' }}
+                      >
+                        <DeleteIcon sx={{ fontSize: '16px' }} />
+                      </IconButton>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+      )}
+
+      {/* Tables Tab */}
+      {activeTab === 5 && (
+        <Box>
+          <Box sx={{ mb: 1.5 }}>
+            <Button
+              variant="contained"
+              onClick={() => {
+                setEditingTable(null);
+                setNewTable({ tableNumber: '', capacity: '', location: '', category: '' });
+                setTableDialog(true);
+              }}
               sx={{
                 bgcolor: '#ff6b35',
                 color: 'white',
@@ -1321,55 +1474,140 @@ const Dashboard = () => {
               Add Table
             </Button>
           </Box>
-          <Grid container spacing={1.2}>
-            {[...tables].sort((a, b) => parseInt(a.tableNumber) - parseInt(b.tableNumber)).map((table) => (
-              <Grid item xs={12} sm={6} md={4} key={table._id}>
-                <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-                  <CardContent sx={{ textAlign: 'center', py: 1.2, px: 1.2 }}>
-                    <Typography sx={{ fontWeight: 700, fontSize: '16px', color: '#2d5016', mb: 0.5 }}>
-                      Table {table.tableNumber}
-                    </Typography>
-                    <Typography sx={{ fontSize: '11px', color: '#999', mb: 1 }}>
-                      Capacity: {table.capacity} | {table.location}
-                    </Typography>
-                    {table.qrCode && (
-                      <img
-                        src={table.qrCode}
-                        alt={`QR Code for Table ${table.tableNumber}`}
-                        style={{ width: 120, height: 120, marginBottom: '8px' }}
-                      />
-                    )}
-                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
-                      {table.qrCode && (
-                        <IconButton
-                          onClick={() => handleDownloadQRCode(table)}
-                          size="small"
-                          sx={{ color: '#2d5016', fontSize: '16px' }}
-                          title="Download QR Code"
-                        >
-                          <DownloadIcon sx={{ fontSize: '16px' }} />
-                        </IconButton>
-                      )}
-                      <IconButton
-                        onClick={() => handleEditTable(table)}
-                        size="small"
-                        sx={{ color: '#ff6b35', fontSize: '16px' }}
-                      >
-                        <EditIcon sx={{ fontSize: '16px' }} />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleDeleteTable(table._id)}
-                        size="small"
-                        sx={{ color: '#c62828', fontSize: '16px' }}
-                      >
-                        <DeleteIcon sx={{ fontSize: '16px' }} />
-                      </IconButton>
+
+          {/* Tables grouped by category */}
+          {tableCategories.length > 0 ? (
+            <>
+              {tableCategories.sort((a, b) => a.order - b.order).map((category) => {
+                const categoryTables = tables.filter(t => t.category?._id === category._id).sort((a, b) => parseInt(a.tableNumber) - parseInt(b.tableNumber));
+                return (
+                  <Box key={category._id} sx={{ mb: 3 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, pb: 1, borderBottom: `2px solid ${category.color}` }}>
+                      <Box sx={{ width: '12px', height: '12px', borderRadius: '50%', bgcolor: category.color }} />
+                      <Typography sx={{ fontWeight: 700, fontSize: '14px', color: '#2d5016' }}>
+                        {category.name} ({categoryTables.length})
+                      </Typography>
                     </Box>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
+                    <Grid container spacing={1.2}>
+                      {categoryTables.map((table) => (
+                        <Grid item xs={12} sm={6} md={4} key={table._id}>
+                          <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                            <CardContent sx={{ textAlign: 'center', py: 1.2, px: 1.2 }}>
+                              <Typography sx={{ fontWeight: 700, fontSize: '16px', color: '#2d5016', mb: 0.5 }}>
+                                Table {table.tableNumber}
+                              </Typography>
+                              <Typography sx={{ fontSize: '11px', color: '#999', mb: 1 }}>
+                                Capacity: {table.capacity} | {table.location}
+                              </Typography>
+                              {table.qrCode && (
+                                <img
+                                  src={table.qrCode}
+                                  alt={`QR Code for Table ${table.tableNumber}`}
+                                  style={{ width: 120, height: 120, marginBottom: '8px' }}
+                                />
+                              )}
+                              <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                                {table.qrCode && (
+                                  <IconButton
+                                    onClick={() => handleDownloadQRCode(table)}
+                                    size="small"
+                                    sx={{ color: '#2d5016', fontSize: '16px' }}
+                                    title="Download QR Code"
+                                  >
+                                    <DownloadIcon sx={{ fontSize: '16px' }} />
+                                  </IconButton>
+                                )}
+                                <IconButton
+                                  onClick={() => handleEditTable(table)}
+                                  size="small"
+                                  sx={{ color: '#ff6b35', fontSize: '16px' }}
+                                >
+                                  <EditIcon sx={{ fontSize: '16px' }} />
+                                </IconButton>
+                                <IconButton
+                                  onClick={() => handleDeleteTable(table._id)}
+                                  size="small"
+                                  sx={{ color: '#c62828', fontSize: '16px' }}
+                                >
+                                  <DeleteIcon sx={{ fontSize: '16px' }} />
+                                </IconButton>
+                              </Box>
+                            </CardContent>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Box>
+                );
+              })}
+
+              {/* Uncategorized tables */}
+              {tables.filter(t => !t.category).length > 0 && (
+                <Box sx={{ mb: 3 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, pb: 1, borderBottom: '2px solid #ccc' }}>
+                    <Box sx={{ width: '12px', height: '12px', borderRadius: '50%', bgcolor: '#ccc' }} />
+                    <Typography sx={{ fontWeight: 700, fontSize: '14px', color: '#2d5016' }}>
+                      Uncategorized ({tables.filter(t => !t.category).length})
+                    </Typography>
+                  </Box>
+                  <Grid container spacing={1.2}>
+                    {tables.filter(t => !t.category).sort((a, b) => parseInt(a.tableNumber) - parseInt(b.tableNumber)).map((table) => (
+                      <Grid item xs={12} sm={6} md={4} key={table._id}>
+                        <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                          <CardContent sx={{ textAlign: 'center', py: 1.2, px: 1.2 }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: '16px', color: '#2d5016', mb: 0.5 }}>
+                              Table {table.tableNumber}
+                            </Typography>
+                            <Typography sx={{ fontSize: '11px', color: '#999', mb: 1 }}>
+                              Capacity: {table.capacity} | {table.location}
+                            </Typography>
+                            {table.qrCode && (
+                              <img
+                                src={table.qrCode}
+                                alt={`QR Code for Table ${table.tableNumber}`}
+                                style={{ width: 120, height: 120, marginBottom: '8px' }}
+                              />
+                            )}
+                            <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                              {table.qrCode && (
+                                <IconButton
+                                  onClick={() => handleDownloadQRCode(table)}
+                                  size="small"
+                                  sx={{ color: '#2d5016', fontSize: '16px' }}
+                                  title="Download QR Code"
+                                >
+                                  <DownloadIcon sx={{ fontSize: '16px' }} />
+                                </IconButton>
+                              )}
+                              <IconButton
+                                onClick={() => handleEditTable(table)}
+                                size="small"
+                                sx={{ color: '#ff6b35', fontSize: '16px' }}
+                              >
+                                <EditIcon sx={{ fontSize: '16px' }} />
+                              </IconButton>
+                              <IconButton
+                                onClick={() => handleDeleteTable(table._id)}
+                                size="small"
+                                sx={{ color: '#c62828', fontSize: '16px' }}
+                              >
+                                <DeleteIcon sx={{ fontSize: '16px' }} />
+                              </IconButton>
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Box>
+              )}
+            </>
+          ) : (
+            <Box sx={{ textAlign: 'center', py: 3 }}>
+              <Typography sx={{ color: '#999', mb: 1 }}>No categories created yet</Typography>
+              <Typography sx={{ fontSize: '12px', color: '#bbb' }}>Create a category in the "Table Categories" tab first</Typography>
+            </Box>
+          )}
         </Box>
       )}
 
@@ -1612,7 +1850,7 @@ const Dashboard = () => {
       <Dialog open={tableDialog} onClose={() => {
         setTableDialog(false);
         setEditingTable(null);
-        setNewTable({ tableNumber: '', capacity: '', location: '' });
+        setNewTable({ tableNumber: '', capacity: '', location: '', category: '' });
       }} maxWidth="sm" fullWidth>
         <DialogTitle>{editingTable ? 'Edit Table' : 'Add New Table'}</DialogTitle>
         <DialogContent>
@@ -1636,12 +1874,71 @@ const Dashboard = () => {
             label="Location"
             value={newTable.location}
             onChange={(e) => setNewTable({...newTable, location: e.target.value})}
+            sx={{ mb: 2 }}
           />
+          <FormControl fullWidth>
+            <InputLabel>Category (Optional)</InputLabel>
+            <Select
+              value={newTable.category}
+              onChange={(e) => setNewTable({...newTable, category: e.target.value})}
+              label="Category (Optional)"
+            >
+              <MenuItem value="">None</MenuItem>
+              {tableCategories.map((cat) => (
+                <MenuItem key={cat._id} value={cat._id}>{cat.name}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setTableDialog(false)}>Cancel</Button>
           <Button onClick={handleCreateTable} variant="contained">
             {editingTable ? 'Update Table' : 'Add Table'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add Table Category Dialog */}
+      <Dialog open={tableCategoryDialog} onClose={() => {
+        setTableCategoryDialog(false);
+        setEditingTableCategory(null);
+        setNewTableCategory({ name: '', description: '', color: '#ff6b35', icon: 'category' });
+      }} maxWidth="sm" fullWidth>
+        <DialogTitle>{editingTableCategory ? 'Edit Category' : 'Add New Category'}</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            label="Category Name"
+            value={newTableCategory.name}
+            onChange={(e) => setNewTableCategory({...newTableCategory, name: e.target.value})}
+            sx={{ mb: 2, mt: 1 }}
+          />
+          <TextField
+            fullWidth
+            label="Description"
+            value={newTableCategory.description}
+            onChange={(e) => setNewTableCategory({...newTableCategory, description: e.target.value})}
+            sx={{ mb: 2 }}
+            multiline
+            rows={2}
+          />
+          <Box sx={{ mb: 2 }}>
+            <Typography sx={{ fontSize: '12px', color: '#666', mb: 1 }}>Color</Typography>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <input
+                type="color"
+                value={newTableCategory.color}
+                onChange={(e) => setNewTableCategory({...newTableCategory, color: e.target.value})}
+                style={{ width: '50px', height: '40px', cursor: 'pointer', borderRadius: '4px', border: 'none' }}
+              />
+              <Typography sx={{ fontSize: '12px', color: '#999' }}>{newTableCategory.color}</Typography>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setTableCategoryDialog(false)}>Cancel</Button>
+          <Button onClick={handleCreateTableCategory} variant="contained">
+            {editingTableCategory ? 'Update Category' : 'Add Category'}
           </Button>
         </DialogActions>
       </Dialog>
