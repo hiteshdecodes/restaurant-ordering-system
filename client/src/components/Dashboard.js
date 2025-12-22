@@ -49,6 +49,7 @@ import {
   TableChart as TableIcon,
   Notifications as NotificationIcon,
   Add as AddIcon,
+  Remove as RemoveIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
   QrCode as QrCodeIcon,
