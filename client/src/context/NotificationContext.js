@@ -67,8 +67,8 @@ export const NotificationProvider = ({ children }) => {
   }, [notifications]);
 
   useEffect(() => {
-    // Connect to Socket.io
-    const newSocket = io('http://localhost:5000');
+    // Connect to Socket.io (use current domain)
+    const newSocket = io();
     setSocket(newSocket);
 
     // Listen for new orders

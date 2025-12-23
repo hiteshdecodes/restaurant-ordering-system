@@ -355,43 +355,43 @@ const TableOrders = () => {
       </Box>
 
       {/* Tables Grid - Grouped by Category */}
-      {tableCategories.length > 0 ? (
-        <Box>
-          {tableCategories.map((category) => {
-            const tablesInCategory = tables.filter(t => t.category?._id === category._id);
-            if (tablesInCategory.length === 0) return null;
+      <Box>
+        {/* Categorized Tables */}
+        {tableCategories.map((category) => {
+          const tablesInCategory = tables.filter(t => t.category?._id === category._id);
+          if (tablesInCategory.length === 0) return null;
 
-            return (
-              <Box key={category._id} sx={{ mb: 3 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
-                  <Box
-                    sx={{
-                      width: '12px',
-                      height: '12px',
-                      borderRadius: '50%',
-                      bgcolor: category.color || '#ff6b35'
-                    }}
-                  />
-                  <Typography sx={{ fontSize: '14px', fontWeight: 600, color: '#2d5016' }}>
-                    {category.name}
-                  </Typography>
-                  <Typography sx={{ fontSize: '12px', color: '#999' }}>
-                    ({tablesInCategory.length} tables)
-                  </Typography>
-                </Box>
-                <Grid container spacing={1.2}>
-                  {tablesInCategory.sort((a, b) => a.tableNumber - b.tableNumber).map((table) => {
-                    const hasOrders = tableOrders[table.tableNumber]?.length > 0;
-                    const hasPendingOrders = tableOrders[table.tableNumber]?.some(order =>
-                      order.status === 'pending'
-                    ) || false;
-                    const hasProcessingOrders = tableOrders[table.tableNumber]?.some(order =>
-                      order.status === 'confirmed' || order.status === 'preparing' || order.status === 'ready'
-                    ) || false;
-                    const orderCount = tableOrders[table.tableNumber]?.length || 0;
+          return (
+            <Box key={category._id} sx={{ mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                <Box
+                  sx={{
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    bgcolor: category.color || '#ff6b35'
+                  }}
+                />
+                <Typography sx={{ fontSize: '14px', fontWeight: 600, color: '#2d5016' }}>
+                  {category.name}
+                </Typography>
+                <Typography sx={{ fontSize: '12px', color: '#999' }}>
+                  ({tablesInCategory.length} tables)
+                </Typography>
+              </Box>
+              <Grid container spacing={1.2}>
+                {tablesInCategory.sort((a, b) => a.tableNumber - b.tableNumber).map((table) => {
+                  const hasOrders = tableOrders[table.tableNumber]?.length > 0;
+                  const hasPendingOrders = tableOrders[table.tableNumber]?.some(order =>
+                    order.status === 'pending'
+                  ) || false;
+                  const hasProcessingOrders = tableOrders[table.tableNumber]?.some(order =>
+                    order.status === 'confirmed' || order.status === 'preparing' || order.status === 'ready'
+                  ) || false;
+                  const orderCount = tableOrders[table.tableNumber]?.length || 0;
 
-                    return (
-                      <Grid item xs={12} sm={6} md={4} lg={2.4} key={table._id}>
+                  return (
+                    <Grid item xs={12} sm={6} md={4} lg={2.4} key={table._id}>
               <Box
                 onClick={() => handleTableClick(table)}
                 sx={{
@@ -487,107 +487,132 @@ const TableOrders = () => {
               </Box>
             );
           })}
-        </Box>
-      ) : (
-        <Grid container spacing={1.2}>
-          {tables.sort((a, b) => a.tableNumber - b.tableNumber).map((table) => {
-            const hasOrders = tableOrders[table.tableNumber]?.length > 0;
-            const hasPendingOrders = tableOrders[table.tableNumber]?.some(order =>
-              order.status === 'pending'
-            ) || false;
-            const hasProcessingOrders = tableOrders[table.tableNumber]?.some(order =>
-              order.status === 'confirmed' || order.status === 'preparing' || order.status === 'ready'
-            ) || false;
-            const orderCount = tableOrders[table.tableNumber]?.length || 0;
 
-            return (
-              <Grid item xs={12} sm={6} md={4} lg={2.4} key={table._id}>
+        {/* Uncategorized Tables */}
+        {(() => {
+          const uncategorizedTables = tables.filter(t => !t.category || !t.category._id);
+          if (uncategorizedTables.length === 0) return null;
+
+          return (
+            <Box sx={{ mb: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                 <Box
-                  onClick={() => handleTableClick(table)}
                   sx={{
-                    position: 'relative',
-                    cursor: 'pointer',
-                    aspectRatio: '1',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    bgcolor: hasOrders ? 'rgba(255, 107, 53, 0.08)' : '#fafafa',
-                    border: '1.5px solid',
-                    borderColor: hasOrders ? '#ff6b35' : '#e0e0e0',
-                    borderRadius: '8px',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-                    '&:hover': {
-                      transform: 'translateY(-4px)',
-                      boxShadow: '0 8px 16px rgba(0,0,0,0.12)',
-                      borderColor: '#ff6b35'
-                    }
+                    width: '12px',
+                    height: '12px',
+                    borderRadius: '50%',
+                    bgcolor: '#999'
                   }}
-                >
-                  <CardContent sx={{ textAlign: 'center', p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                    <Typography sx={{ fontSize: '24px', fontWeight: 700, color: '#2d5016', mb: 0.5 }}>
-                      {table.tableNumber}
-                    </Typography>
-                    <Typography sx={{ fontSize: '11px', color: '#999', mb: 0.8 }}>
-                      Capacity: {table.capacity}
-                    </Typography>
-                    {orderCount > 0 && (
-                      <Chip
-                        label={`${orderCount} order${orderCount > 1 ? 's' : ''}`}
-                        size="small"
+                />
+                <Typography sx={{ fontSize: '14px', fontWeight: 600, color: '#2d5016' }}>
+                  Uncategorized
+                </Typography>
+                <Typography sx={{ fontSize: '12px', color: '#999' }}>
+                  ({uncategorizedTables.length} tables)
+                </Typography>
+              </Box>
+              <Grid container spacing={1.2}>
+                {uncategorizedTables.sort((a, b) => a.tableNumber - b.tableNumber).map((table) => {
+                  const hasOrders = tableOrders[table.tableNumber]?.length > 0;
+                  const hasPendingOrders = tableOrders[table.tableNumber]?.some(order =>
+                    order.status === 'pending'
+                  ) || false;
+                  const hasProcessingOrders = tableOrders[table.tableNumber]?.some(order =>
+                    order.status === 'confirmed' || order.status === 'preparing' || order.status === 'ready'
+                  ) || false;
+                  const orderCount = tableOrders[table.tableNumber]?.length || 0;
+
+                  return (
+                    <Grid item xs={12} sm={6} md={4} lg={2.4} key={table._id}>
+                      <Box
+                        onClick={() => handleTableClick(table)}
                         sx={{
-                          height: '20px',
-                          fontSize: '10px',
-                          bgcolor: hasOrders ? '#ff6b35' : '#e0e0e0',
-                          color: hasOrders ? 'white' : '#666'
+                          position: 'relative',
+                          cursor: 'pointer',
+                          aspectRatio: '1',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          bgcolor: hasOrders ? 'rgba(255, 107, 53, 0.08)' : '#fafafa',
+                          border: '1.5px solid',
+                          borderColor: hasOrders ? '#ff6b35' : '#e0e0e0',
+                          borderRadius: '8px',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                          '&:hover': {
+                            transform: 'translateY(-4px)',
+                            boxShadow: '0 8px 16px rgba(0,0,0,0.12)',
+                            borderColor: '#ff6b35'
+                          }
                         }}
-                      />
-                    )}
-                  </CardContent>
-                  {hasPendingOrders && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 10,
-                        right: 10,
-                        width: 12,
-                        height: 12,
-                        bgcolor: '#c62828',
-                        borderRadius: '50%',
-                        animation: 'pulse 2s infinite',
-                        '@keyframes pulse': {
-                          '0%': { boxShadow: '0 0 0 0 rgba(198, 40, 40, 0.7)' },
-                          '70%': { boxShadow: '0 0 0 8px rgba(198, 40, 40, 0)' },
-                          '100%': { boxShadow: '0 0 0 0 rgba(198, 40, 40, 0)' }
-                        }
-                      }}
-                    />
-                  )}
-                  {!hasPendingOrders && hasProcessingOrders && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: 10,
-                        right: 10,
-                        width: 12,
-                        height: 12,
-                        bgcolor: '#ff6b35',
-                        borderRadius: '50%',
-                        animation: 'pulse 2s infinite',
-                        '@keyframes pulse': {
-                          '0%': { boxShadow: '0 0 0 0 rgba(255, 107, 53, 0.7)' },
-                          '70%': { boxShadow: '0 0 0 8px rgba(255, 107, 53, 0)' },
-                          '100%': { boxShadow: '0 0 0 0 rgba(255, 107, 53, 0)' }
-                        }
-                      }}
-                    />
-                  )}
-                </Box>
+                      >
+                        <CardContent sx={{ textAlign: 'center', p: 1.5, '&:last-child': { pb: 1.5 } }}>
+                          <Typography sx={{ fontSize: '24px', fontWeight: 700, color: '#2d5016', mb: 0.5 }}>
+                            {table.tableNumber}
+                          </Typography>
+                          <Typography sx={{ fontSize: '11px', color: '#999', mb: 0.8 }}>
+                            Capacity: {table.capacity}
+                          </Typography>
+                          {orderCount > 0 && (
+                            <Chip
+                              label={`${orderCount} order${orderCount > 1 ? 's' : ''}`}
+                              size="small"
+                              sx={{
+                                height: '20px',
+                                fontSize: '10px',
+                                bgcolor: hasOrders ? '#ff6b35' : '#e0e0e0',
+                                color: hasOrders ? 'white' : '#666'
+                              }}
+                            />
+                          )}
+                        </CardContent>
+                        {hasPendingOrders && (
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              top: 10,
+                              right: 10,
+                              width: 12,
+                              height: 12,
+                              bgcolor: '#c62828',
+                              borderRadius: '50%',
+                              animation: 'pulse 2s infinite',
+                              '@keyframes pulse': {
+                                '0%': { boxShadow: '0 0 0 0 rgba(198, 40, 40, 0.7)' },
+                                '70%': { boxShadow: '0 0 0 8px rgba(198, 40, 40, 0)' },
+                                '100%': { boxShadow: '0 0 0 0 rgba(198, 40, 40, 0)' }
+                              }
+                            }}
+                          />
+                        )}
+                        {!hasPendingOrders && hasProcessingOrders && (
+                          <Box
+                            sx={{
+                              position: 'absolute',
+                              top: 10,
+                              right: 10,
+                              width: 12,
+                              height: 12,
+                              bgcolor: '#ff6b35',
+                              borderRadius: '50%',
+                              animation: 'pulse 2s infinite',
+                              '@keyframes pulse': {
+                                '0%': { boxShadow: '0 0 0 0 rgba(255, 107, 53, 0.7)' },
+                                '70%': { boxShadow: '0 0 0 8px rgba(255, 107, 53, 0)' },
+                                '100%': { boxShadow: '0 0 0 0 rgba(255, 107, 53, 0)' }
+                              }
+                            }}
+                          />
+                        )}
+                      </Box>
+                    </Grid>
+                  );
+                })}
               </Grid>
-            );
-          })}
-        </Grid>
-      )}
+            </Box>
+          );
+        })()}
+      </Box>
 
       {/* Order Details Dialog */}
       <Dialog
