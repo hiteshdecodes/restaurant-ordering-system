@@ -556,16 +556,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleEditTable = (table) => {
-    setEditingTable(table);
-    setNewTable({
-      tableNumber: table.tableNumber,
-      capacity: table.capacity.toString(),
-      location: table.location
-    });
-    setTableDialog(true);
-  };
-
   const handleClearAllOrders = async () => {
     try {
       await axios.delete(`${API_BASE}/orders/clear-all/all`);
