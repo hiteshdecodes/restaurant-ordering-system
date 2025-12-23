@@ -27,8 +27,8 @@ import NotificationCenter from './NotificationCenter';
 import { NotificationContext } from '../context/NotificationContext';
 
 const TableOrders = () => {
-  const { addNotification } = useContext(NotificationContext);
   const [tables, setTables] = useState([]);
+  const [tableCategories, setTableCategories] = useState([]);
   const [tableOrders, setTableOrders] = useState({});
   const [selectedTable, setSelectedTable] = useState(null);
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
@@ -39,6 +39,9 @@ const TableOrders = () => {
   const [editOrderDialog, setEditOrderDialog] = useState(false);
   const [editingOrder, setEditingOrder] = useState(null);
   const [editOrderItems, setEditOrderItems] = useState([]);
+  const [menuItems, setMenuItems] = useState([]);
+  const [selectedAddItem, setSelectedAddItem] = useState('');
+  const [addItemQuantity, setAddItemQuantity] = useState(1);
 
   useEffect(() => {
     fetchTables();
@@ -59,16 +62,7 @@ const TableOrders = () => {
         updated[tableNum] = [newOrder, ...updated[tableNum]];
         return updated;
       });
-
-      // Add notification using context
-      addNotification({
-        type: 'new-order',
-        message: `New order from Table ${newOrder.tableNumber}`,
-        details: `Order #${newOrder.orderNumber} - ₹${newOrder.totalAmount}`
-      });
-
-      // Play sound
-      playNotificationSound();
+      // Notification is handled by NotificationContext provider
     });
 
     // Listen for order status updates
@@ -112,10 +106,16 @@ const TableOrders = () => {
 
   const fetchTables = async () => {
     try {
-      const response = await axios.get('/api/tables');
-      setTables(response.data);
+      const [tablesRes, categoriesRes, menuRes] = await Promise.all([
+        axios.get('/api/tables'),
+        axios.get('/api/table-categories'),
+        axios.get('/api/menu-items')
+      ]);
+      setTables(tablesRes.data);
+      setTableCategories(categoriesRes.data);
+      setMenuItems(menuRes.data);
     } catch (error) {
-      console.error('Error fetching tables:', error);
+      console.error('Error fetching data:', error);
     }
   };
 
@@ -206,9 +206,10 @@ const TableOrders = () => {
   const handleEditOrder = (order) => {
     setEditingOrder(order);
     setEditOrderItems(order.items.map(item => ({
-      ...item,
-      menuItem: item.menuItem._id || item.menuItem
+      ...item
     })));
+    setSelectedAddItem('');
+    setAddItemQuantity(1);
     setEditOrderDialog(true);
   };
 
@@ -259,6 +260,42 @@ const TableOrders = () => {
     const updated = [...editOrderItems];
     updated[index].quantity = newQuantity;
     setEditOrderItems(updated);
+  };
+
+  const handleAddItemToOrder = () => {
+    if (!selectedAddItem) {
+      alert('Please select an item');
+      return;
+    }
+
+    const selectedMenuItem = menuItems.find(item => item._id === selectedAddItem);
+    if (!selectedMenuItem) return;
+
+    // Check if item already exists
+    const existingItemIndex = editOrderItems.findIndex(
+      item => (item.menuItem._id || item.menuItem) === selectedAddItem
+    );
+
+    if (existingItemIndex > -1) {
+      // Item already exists, increase quantity
+      const updated = [...editOrderItems];
+      updated[existingItemIndex].quantity += addItemQuantity;
+      setEditOrderItems(updated);
+    } else {
+      // Add new item
+      setEditOrderItems([
+        ...editOrderItems,
+        {
+          menuItem: selectedMenuItem,
+          name: selectedMenuItem.name,
+          price: selectedMenuItem.price,
+          quantity: addItemQuantity
+        }
+      ]);
+    }
+
+    setSelectedAddItem('');
+    setAddItemQuantity(1);
   };
 
   const getStatusColor = (status) => {
@@ -317,20 +354,44 @@ const TableOrders = () => {
         <NotificationCenter />
       </Box>
 
-      {/* Tables Grid */}
-      <Grid container spacing={1.2}>
-        {tables.sort((a, b) => a.tableNumber - b.tableNumber).map((table) => {
-          const hasOrders = tableOrders[table.tableNumber]?.length > 0;
-          const hasPendingOrders = tableOrders[table.tableNumber]?.some(order =>
-            order.status === 'pending'
-          ) || false;
-          const hasProcessingOrders = tableOrders[table.tableNumber]?.some(order =>
-            order.status === 'confirmed' || order.status === 'preparing' || order.status === 'ready'
-          ) || false;
-          const orderCount = tableOrders[table.tableNumber]?.length || 0;
+      {/* Tables Grid - Grouped by Category */}
+      {tableCategories.length > 0 ? (
+        <Box>
+          {tableCategories.map((category) => {
+            const tablesInCategory = tables.filter(t => t.category?._id === category._id);
+            if (tablesInCategory.length === 0) return null;
 
-          return (
-            <Grid item xs={12} sm={6} md={4} lg={2.4} key={table._id}>
+            return (
+              <Box key={category._id} sx={{ mb: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                  <Box
+                    sx={{
+                      width: '12px',
+                      height: '12px',
+                      borderRadius: '50%',
+                      bgcolor: category.color || '#ff6b35'
+                    }}
+                  />
+                  <Typography sx={{ fontSize: '14px', fontWeight: 600, color: '#2d5016' }}>
+                    {category.name}
+                  </Typography>
+                  <Typography sx={{ fontSize: '12px', color: '#999' }}>
+                    ({tablesInCategory.length} tables)
+                  </Typography>
+                </Box>
+                <Grid container spacing={1.2}>
+                  {tablesInCategory.sort((a, b) => a.tableNumber - b.tableNumber).map((table) => {
+                    const hasOrders = tableOrders[table.tableNumber]?.length > 0;
+                    const hasPendingOrders = tableOrders[table.tableNumber]?.some(order =>
+                      order.status === 'pending'
+                    ) || false;
+                    const hasProcessingOrders = tableOrders[table.tableNumber]?.some(order =>
+                      order.status === 'confirmed' || order.status === 'preparing' || order.status === 'ready'
+                    ) || false;
+                    const orderCount = tableOrders[table.tableNumber]?.length || 0;
+
+                    return (
+                      <Grid item xs={12} sm={6} md={4} lg={2.4} key={table._id}>
               <Box
                 onClick={() => handleTableClick(table)}
                 sx={{
@@ -419,10 +480,114 @@ const TableOrders = () => {
                   </Typography>
                 </CardContent>
               </Box>
-            </Grid>
-          );
-        })}
-      </Grid>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              </Box>
+            );
+          })}
+        </Box>
+      ) : (
+        <Grid container spacing={1.2}>
+          {tables.sort((a, b) => a.tableNumber - b.tableNumber).map((table) => {
+            const hasOrders = tableOrders[table.tableNumber]?.length > 0;
+            const hasPendingOrders = tableOrders[table.tableNumber]?.some(order =>
+              order.status === 'pending'
+            ) || false;
+            const hasProcessingOrders = tableOrders[table.tableNumber]?.some(order =>
+              order.status === 'confirmed' || order.status === 'preparing' || order.status === 'ready'
+            ) || false;
+            const orderCount = tableOrders[table.tableNumber]?.length || 0;
+
+            return (
+              <Grid item xs={12} sm={6} md={4} lg={2.4} key={table._id}>
+                <Box
+                  onClick={() => handleTableClick(table)}
+                  sx={{
+                    position: 'relative',
+                    cursor: 'pointer',
+                    aspectRatio: '1',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    bgcolor: hasOrders ? 'rgba(255, 107, 53, 0.08)' : '#fafafa',
+                    border: '1.5px solid',
+                    borderColor: hasOrders ? '#ff6b35' : '#e0e0e0',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                    '&:hover': {
+                      transform: 'translateY(-4px)',
+                      boxShadow: '0 8px 16px rgba(0,0,0,0.12)',
+                      borderColor: '#ff6b35'
+                    }
+                  }}
+                >
+                  <CardContent sx={{ textAlign: 'center', p: 1.5, '&:last-child': { pb: 1.5 } }}>
+                    <Typography sx={{ fontSize: '24px', fontWeight: 700, color: '#2d5016', mb: 0.5 }}>
+                      {table.tableNumber}
+                    </Typography>
+                    <Typography sx={{ fontSize: '11px', color: '#999', mb: 0.8 }}>
+                      Capacity: {table.capacity}
+                    </Typography>
+                    {orderCount > 0 && (
+                      <Chip
+                        label={`${orderCount} order${orderCount > 1 ? 's' : ''}`}
+                        size="small"
+                        sx={{
+                          height: '20px',
+                          fontSize: '10px',
+                          bgcolor: hasOrders ? '#ff6b35' : '#e0e0e0',
+                          color: hasOrders ? 'white' : '#666'
+                        }}
+                      />
+                    )}
+                  </CardContent>
+                  {hasPendingOrders && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        width: 12,
+                        height: 12,
+                        bgcolor: '#c62828',
+                        borderRadius: '50%',
+                        animation: 'pulse 2s infinite',
+                        '@keyframes pulse': {
+                          '0%': { boxShadow: '0 0 0 0 rgba(198, 40, 40, 0.7)' },
+                          '70%': { boxShadow: '0 0 0 8px rgba(198, 40, 40, 0)' },
+                          '100%': { boxShadow: '0 0 0 0 rgba(198, 40, 40, 0)' }
+                        }
+                      }}
+                    />
+                  )}
+                  {!hasPendingOrders && hasProcessingOrders && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 10,
+                        right: 10,
+                        width: 12,
+                        height: 12,
+                        bgcolor: '#ff6b35',
+                        borderRadius: '50%',
+                        animation: 'pulse 2s infinite',
+                        '@keyframes pulse': {
+                          '0%': { boxShadow: '0 0 0 0 rgba(255, 107, 53, 0.7)' },
+                          '70%': { boxShadow: '0 0 0 8px rgba(255, 107, 53, 0)' },
+                          '100%': { boxShadow: '0 0 0 0 rgba(255, 107, 53, 0)' }
+                        }
+                      }}
+                    />
+                  )}
+                </Box>
+              </Grid>
+            );
+          })}
+        </Grid>
+      )}
 
       {/* Order Details Dialog */}
       <Dialog
@@ -706,7 +871,7 @@ const TableOrders = () => {
                   <ListItem sx={{ py: 1, px: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Box sx={{ flex: 1 }}>
                       <Typography sx={{ fontSize: '13px', fontWeight: 500 }}>
-                        {typeof item.menuItem === 'object' ? item.menuItem.name : 'Item'}
+                        {typeof item.menuItem === 'object' ? item.menuItem.name : item.name || 'Item'}
                       </Typography>
                       <Typography sx={{ fontSize: '11px', color: '#999' }}>
                         ₹{item.price} x {item.quantity} = ₹{item.price * item.quantity}
@@ -743,6 +908,66 @@ const TableOrders = () => {
                 </Box>
               ))}
             </List>
+
+            {/* Add New Item Section */}
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontSize: '12px', color: '#666', mb: 1 }}>
+                Add New Item:
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
+                <Select
+                  value={selectedAddItem}
+                  onChange={(e) => setSelectedAddItem(e.target.value)}
+                  size="small"
+                  sx={{ flex: 1, borderRadius: 1 }}
+                >
+                  <MenuItem value="">Select an item...</MenuItem>
+                  {menuItems.map(item => (
+                    <MenuItem key={item._id} value={item._id}>
+                      {item.name} - ₹{item.price}
+                    </MenuItem>
+                  ))}
+                </Select>
+                <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                  <IconButton
+                    size="small"
+                    onClick={() => setAddItemQuantity(Math.max(1, addItemQuantity - 1))}
+                    sx={{ color: '#ff6b35' }}
+                  >
+                    <RemoveIcon sx={{ fontSize: '16px' }} />
+                  </IconButton>
+                  <Typography sx={{ fontSize: '12px', minWidth: '20px', textAlign: 'center' }}>
+                    {addItemQuantity}
+                  </Typography>
+                  <IconButton
+                    size="small"
+                    onClick={() => setAddItemQuantity(addItemQuantity + 1)}
+                    sx={{ color: '#ff6b35' }}
+                  >
+                    <AddIcon sx={{ fontSize: '16px' }} />
+                  </IconButton>
+                </Box>
+              </Box>
+              <Button
+                onClick={handleAddItemToOrder}
+                variant="outlined"
+                fullWidth
+                sx={{
+                  borderColor: '#ff6b35',
+                  color: '#ff6b35',
+                  textTransform: 'none',
+                  fontWeight: 600,
+                  fontSize: '12px',
+                  '&:hover': {
+                    bgcolor: 'rgba(255, 107, 53, 0.05)',
+                    borderColor: '#ff6b35'
+                  }
+                }}
+              >
+                Add Item
+              </Button>
+            </Box>
+
             <Box sx={{ bgcolor: '#f0f0f0', p: 1.5, borderRadius: '6px', mb: 2 }}>
               <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#1a1a1a' }}>
                 New Total: ₹{editOrderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)}
