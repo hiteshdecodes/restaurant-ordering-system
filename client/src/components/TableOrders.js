@@ -20,7 +20,8 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  TextField
+  TextField,
+  Snackbar
 } from '@mui/material';
 import { Delete as DeleteIcon, Close as CloseIcon, Note as NoteIcon, Edit as EditIcon, Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material';
 import { List, ListItem } from '@mui/material';
@@ -45,6 +46,8 @@ const TableOrders = () => {
   const [menuItems, setMenuItems] = useState([]);
   const [selectedAddItem, setSelectedAddItem] = useState(null);
   const [addItemQuantity, setAddItemQuantity] = useState(1);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [currentNotification, setCurrentNotification] = useState(null);
 
   useEffect(() => {
     fetchTables();
@@ -65,7 +68,18 @@ const TableOrders = () => {
         updated[tableNum] = [newOrder, ...updated[tableNum]];
         return updated;
       });
-      // Notification is handled by NotificationContext provider
+
+      // Show toast notification
+      const notification = {
+        id: Date.now(),
+        type: 'success',
+        title: 'New Order Received!',
+        message: `Order ${newOrder.orderNumber} from Table ${newOrder.tableNumber}`,
+        order: newOrder
+      };
+
+      setCurrentNotification(notification);
+      setNotificationOpen(true);
     });
 
     // Listen for order status updates
@@ -541,30 +555,33 @@ const TableOrders = () => {
                           boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
                           '&:hover': {
                             transform: 'translateY(-4px)',
-                            boxShadow: '0 8px 16px rgba(0,0,0,0.12)',
-                            borderColor: '#ff6b35'
+                            boxShadow: hasOrders
+                              ? '0 8px 16px rgba(255, 107, 53, 0.2)'
+                              : '0 6px 12px rgba(0, 0, 0, 0.12)',
+                            borderColor: hasOrders ? '#e55a24' : '#bdbdbd',
                           }
                         }}
                       >
-                        <CardContent sx={{ textAlign: 'center', p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                          <Typography sx={{ fontSize: '24px', fontWeight: 700, color: '#2d5016', mb: 0.5 }}>
+                        <CardContent sx={{ textAlign: 'center', p: 1.2, width: '100%' }}>
+                          <Typography
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: '24px',
+                              color: hasOrders ? '#ff6b35' : '#2d5016',
+                              mb: 0.5
+                            }}
+                          >
                             {table.tableNumber}
                           </Typography>
-                          <Typography sx={{ fontSize: '11px', color: '#999', mb: 0.8 }}>
-                            Capacity: {table.capacity}
+                          <Typography
+                            sx={{
+                              fontSize: '11px',
+                              color: hasOrders ? '#ff6b35' : '#999',
+                              fontWeight: 500
+                            }}
+                          >
+                            {hasOrders ? `${orderCount} order${orderCount > 1 ? 's' : ''}` : 'No orders'}
                           </Typography>
-                          {orderCount > 0 && (
-                            <Chip
-                              label={`${orderCount} order${orderCount > 1 ? 's' : ''}`}
-                              size="small"
-                              sx={{
-                                height: '20px',
-                                fontSize: '10px',
-                                bgcolor: hasOrders ? '#ff6b35' : '#e0e0e0',
-                                color: hasOrders ? 'white' : '#666'
-                              }}
-                            />
-                          )}
                         </CardContent>
                         {hasPendingOrders && (
                           <Box
@@ -995,6 +1012,36 @@ const TableOrders = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Toast Notification */}
+      <Snackbar
+        open={notificationOpen}
+        autoHideDuration={8000}
+        onClose={() => setNotificationOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <Alert
+          onClose={() => setNotificationOpen(false)}
+          severity={currentNotification?.type || 'info'}
+          variant="filled"
+          sx={{
+            width: '100%',
+            fontSize: '1.1rem',
+            '& .MuiAlert-message': {
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px'
+            }
+          }}
+        >
+          <Box sx={{ fontWeight: 600 }}>
+            {currentNotification?.title}
+          </Box>
+          <Box sx={{ fontSize: '0.95rem' }}>
+            {currentNotification?.message}
+          </Box>
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };
