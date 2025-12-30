@@ -562,7 +562,7 @@ const TableOrders = () => {
                           }
                         }}
                       >
-                        <CardContent sx={{ textAlign: 'center', p: 1.2, width: '100%' }}>
+                        <CardContent sx={{ textAlign: 'center', p: 1.2, width: '100%', '&:last-child': { pb: 1.2 } }}>
                           <Typography
                             sx={{
                               fontWeight: 700,
@@ -1030,16 +1030,29 @@ const TableOrders = () => {
             '& .MuiAlert-message': {
               display: 'flex',
               flexDirection: 'column',
-              gap: '4px'
+              gap: 1
             }
           }}
         >
-          <Box sx={{ fontWeight: 600 }}>
+          <Typography variant="h6" component="div" sx={{ fontWeight: 'bold' }}>
             {currentNotification?.title}
-          </Box>
-          <Box sx={{ fontSize: '0.95rem' }}>
+          </Typography>
+          <Typography variant="body2">
             {currentNotification?.message}
-          </Box>
+          </Typography>
+          {currentNotification?.order && (
+            <Box sx={{ mt: 1 }}>
+              <Typography variant="caption" display="block">
+                Customer: {currentNotification.order.customerName}
+              </Typography>
+              <Typography variant="caption" display="block">
+                Items: {currentNotification.order.items?.length || 0} items
+              </Typography>
+              <Typography variant="caption" display="block">
+                Total: ₹{currentNotification.order.totalAmount}
+              </Typography>
+            </Box>
+          )}
         </Alert>
       </Snackbar>
     </Container>
