@@ -416,17 +416,17 @@ const TableOrders = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  bgcolor: hasOrders ? 'rgba(255, 107, 53, 0.08)' : '#fafafa',
+                  bgcolor: hasOrders ? 'linear-gradient(135deg, rgba(255, 107, 53, 0.12) 0%, rgba(255, 107, 53, 0.04) 100%)' : 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)',
                   border: '1.5px solid',
-                  borderColor: hasOrders ? '#ff6b35' : '#e0e0e0',
-                  borderRadius: '8px',
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                  borderColor: hasOrders ? '#ff6b35' : '#e8e8e8',
+                  borderRadius: '12px',
+                  boxShadow: hasOrders ? '0 4px 12px rgba(255, 107, 53, 0.1)' : '0 2px 8px rgba(0,0,0,0.06)',
                   '&:hover': {
-                    transform: 'translateY(-4px)',
+                    transform: 'translateY(-6px)',
                     boxShadow: hasOrders
-                      ? '0 8px 16px rgba(255, 107, 53, 0.2)'
-                      : '0 6px 12px rgba(0, 0, 0, 0.12)',
-                    borderColor: hasOrders ? '#e55a24' : '#bdbdbd',
+                      ? '0 12px 24px rgba(255, 107, 53, 0.2)'
+                      : '0 8px 16px rgba(0, 0, 0, 0.12)',
+                    borderColor: hasOrders ? '#e55a24' : '#d0d0d0',
                   }
                 }}
               >

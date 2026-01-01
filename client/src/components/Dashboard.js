@@ -1342,26 +1342,76 @@ const Dashboard = () => {
           <Grid container spacing={1.2}>
             {categories.map((category) => (
               <Grid item xs={12} sm={6} md={4} key={category._id}>
-                <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-                  <CardContent sx={{ py: 1.2, px: 1.2 }}>
-                    <Typography sx={{ fontWeight: 600, fontSize: '14px', color: '#2d5016', mb: 0.5 }}>{category.name}</Typography>
-                    <Typography sx={{ fontSize: '11px', color: '#999', mb: 1 }}>
-                      {category.description}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <Card
+                  sx={{
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    border: '1.5px solid #f0f0f0',
+                    background: 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)',
+                    '&:hover': {
+                      boxShadow: '0 8px 24px rgba(255, 107, 53, 0.15)',
+                      transform: 'translateY(-4px)',
+                      borderColor: '#ff6b35'
+                    }
+                  }}
+                >
+                  <CardContent sx={{ py: 2, px: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: '16px',
+                          color: '#2d5016',
+                          mb: 1,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden'
+                        }}
+                      >
+                        {category.name}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: '12px',
+                          color: '#999',
+                          mb: 1.5,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          minHeight: '32px'
+                        }}
+                      >
+                        {category.description || 'No description'}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', pt: 1, borderTop: '1px solid #f0f0f0' }}>
                       <IconButton
                         onClick={() => handleEditCategory(category)}
                         size="small"
-                        sx={{ color: '#ff6b35', fontSize: '16px' }}
+                        sx={{
+                          color: '#ff6b35',
+                          fontSize: '16px',
+                          '&:hover': { bgcolor: 'rgba(255, 107, 53, 0.1)' }
+                        }}
                       >
-                        <EditIcon sx={{ fontSize: '16px' }} />
+                        <EditIcon sx={{ fontSize: '18px' }} />
                       </IconButton>
                       <IconButton
                         onClick={() => handleDeleteCategory(category._id)}
                         size="small"
-                        sx={{ color: '#c62828', fontSize: '16px' }}
+                        sx={{
+                          color: '#c62828',
+                          fontSize: '16px',
+                          '&:hover': { bgcolor: 'rgba(198, 40, 40, 0.1)' }
+                        }}
                       >
-                        <DeleteIcon sx={{ fontSize: '16px' }} />
+                        <DeleteIcon sx={{ fontSize: '18px' }} />
                       </IconButton>
                     </Box>
                   </CardContent>
@@ -1400,36 +1450,99 @@ const Dashboard = () => {
           <Grid container spacing={1.2}>
             {tableCategories.sort((a, b) => a.order - b.order).map((category) => (
               <Grid item xs={12} sm={6} md={4} key={category._id}>
-                <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderLeft: `4px solid ${category.color}` }}>
-                  <CardContent sx={{ py: 1.2, px: 1.2 }}>
-                    <Typography sx={{ fontWeight: 700, fontSize: '16px', color: '#2d5016', mb: 0.5 }}>
-                      {category.name}
-                    </Typography>
-                    <Typography sx={{ fontSize: '11px', color: '#999', mb: 1 }}>
-                      {category.description || 'No description'}
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-start', mb: 1 }}>
+                <Card
+                  sx={{
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    border: `2px solid ${category.color}`,
+                    background: `linear-gradient(135deg, ${category.color}08 0%, #ffffff 100%)`,
+                    '&:hover': {
+                      boxShadow: `0 8px 24px ${category.color}30`,
+                      transform: 'translateY(-4px)'
+                    }
+                  }}
+                >
+                  <CardContent sx={{ py: 2, px: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{ flex: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Box
+                          sx={{
+                            width: '10px',
+                            height: '10px',
+                            borderRadius: '50%',
+                            bgcolor: category.color,
+                            flexShrink: 0
+                          }}
+                        />
+                        <Typography
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: '16px',
+                            color: '#2d5016',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 1,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                          }}
+                        >
+                          {category.name}
+                        </Typography>
+                      </Box>
+                      <Typography
+                        sx={{
+                          fontSize: '12px',
+                          color: '#999',
+                          mb: 1.5,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden',
+                          minHeight: '32px'
+                        }}
+                      >
+                        {category.description || 'No description'}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: 1, justifyContent: 'space-between', alignItems: 'center', pt: 1, borderTop: '1px solid #f0f0f0' }}>
                       <Chip
                         label={`${tables.filter(t => t.category?._id === category._id).length} tables`}
                         size="small"
-                        sx={{ fontSize: '10px', height: '20px' }}
+                        sx={{
+                          fontSize: '11px',
+                          height: '24px',
+                          bgcolor: `${category.color}20`,
+                          color: category.color,
+                          fontWeight: 600
+                        }}
                       />
-                    </Box>
-                    <Box sx={{ display: 'flex', gap: 0.5 }}>
-                      <IconButton
-                        onClick={() => handleEditTableCategory(category)}
-                        size="small"
-                        sx={{ color: '#ff6b35', fontSize: '16px' }}
-                      >
-                        <EditIcon sx={{ fontSize: '16px' }} />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => handleDeleteTableCategory(category._id)}
-                        size="small"
-                        sx={{ color: '#c62828', fontSize: '16px' }}
-                      >
-                        <DeleteIcon sx={{ fontSize: '16px' }} />
-                      </IconButton>
+                      <Box sx={{ display: 'flex', gap: 0.5 }}>
+                        <IconButton
+                          onClick={() => handleEditTableCategory(category)}
+                          size="small"
+                          sx={{
+                            color: '#ff6b35',
+                            fontSize: '16px',
+                            '&:hover': { bgcolor: 'rgba(255, 107, 53, 0.1)' }
+                          }}
+                        >
+                          <EditIcon sx={{ fontSize: '18px' }} />
+                        </IconButton>
+                        <IconButton
+                          onClick={() => handleDeleteTableCategory(category._id)}
+                          size="small"
+                          sx={{
+                            color: '#c62828',
+                            fontSize: '16px',
+                            '&:hover': { bgcolor: 'rgba(198, 40, 40, 0.1)' }
+                          }}
+                        >
+                          <DeleteIcon sx={{ fontSize: '18px' }} />
+                        </IconButton>
+                      </Box>
                     </Box>
                   </CardContent>
                 </Card>
@@ -1481,45 +1594,77 @@ const Dashboard = () => {
                     <Grid container spacing={1.2}>
                       {categoryTables.map((table) => (
                         <Grid item xs={12} sm={6} md={4} key={table._id}>
-                          <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-                            <CardContent sx={{ textAlign: 'center', py: 1.2, px: 1.2 }}>
-                              <Typography sx={{ fontWeight: 700, fontSize: '16px', color: '#2d5016', mb: 0.5 }}>
-                                Table {table.tableNumber}
-                              </Typography>
-                              <Typography sx={{ fontSize: '11px', color: '#999', mb: 1 }}>
-                                Capacity: {table.capacity} | {table.location}
-                              </Typography>
-                              {table.qrCode && (
-                                <img
-                                  src={table.qrCode}
-                                  alt={`QR Code for Table ${table.tableNumber}`}
-                                  style={{ width: 120, height: 120, marginBottom: '8px' }}
-                                />
-                              )}
-                              <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                          <Card
+                            sx={{
+                              borderRadius: '12px',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                              height: '100%',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                              border: `1.5px solid ${category.color}40`,
+                              background: `linear-gradient(135deg, ${category.color}08 0%, #ffffff 100%)`,
+                              '&:hover': {
+                                boxShadow: `0 8px 24px ${category.color}25`,
+                                transform: 'translateY(-4px)',
+                                borderColor: category.color
+                              }
+                            }}
+                          >
+                            <CardContent sx={{ textAlign: 'center', py: 2, px: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                              <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                <Typography sx={{ fontWeight: 700, fontSize: '18px', color: '#2d5016', mb: 0.5 }}>
+                                  Table {table.tableNumber}
+                                </Typography>
+                                <Typography sx={{ fontSize: '12px', color: '#999', mb: 1.5 }}>
+                                  Capacity: {table.capacity} | {table.location}
+                                </Typography>
+                                {table.qrCode && (
+                                  <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1.5 }}>
+                                    <img
+                                      src={table.qrCode}
+                                      alt={`QR Code for Table ${table.tableNumber}`}
+                                      style={{ width: 100, height: 100, borderRadius: '8px', border: '2px solid #f0f0f0' }}
+                                    />
+                                  </Box>
+                                )}
+                              </Box>
+                              <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center', pt: 1, borderTop: '1px solid #f0f0f0' }}>
                                 {table.qrCode && (
                                   <IconButton
                                     onClick={() => handleDownloadQRCode(table)}
                                     size="small"
-                                    sx={{ color: '#2d5016', fontSize: '16px' }}
+                                    sx={{
+                                      color: '#2d5016',
+                                      fontSize: '16px',
+                                      '&:hover': { bgcolor: 'rgba(45, 80, 22, 0.1)' }
+                                    }}
                                     title="Download QR Code"
                                   >
-                                    <DownloadIcon sx={{ fontSize: '16px' }} />
+                                    <DownloadIcon sx={{ fontSize: '18px' }} />
                                   </IconButton>
                                 )}
                                 <IconButton
                                   onClick={() => handleEditTable(table)}
                                   size="small"
-                                  sx={{ color: '#ff6b35', fontSize: '16px' }}
+                                  sx={{
+                                    color: '#ff6b35',
+                                    fontSize: '16px',
+                                    '&:hover': { bgcolor: 'rgba(255, 107, 53, 0.1)' }
+                                  }}
                                 >
-                                  <EditIcon sx={{ fontSize: '16px' }} />
+                                  <EditIcon sx={{ fontSize: '18px' }} />
                                 </IconButton>
                                 <IconButton
                                   onClick={() => handleDeleteTable(table._id)}
                                   size="small"
-                                  sx={{ color: '#c62828', fontSize: '16px' }}
+                                  sx={{
+                                    color: '#c62828',
+                                    fontSize: '16px',
+                                    '&:hover': { bgcolor: 'rgba(198, 40, 40, 0.1)' }
+                                  }}
                                 >
-                                  <DeleteIcon sx={{ fontSize: '16px' }} />
+                                  <DeleteIcon sx={{ fontSize: '18px' }} />
                                 </IconButton>
                               </Box>
                             </CardContent>
@@ -1543,45 +1688,77 @@ const Dashboard = () => {
                   <Grid container spacing={1.2}>
                     {tables.filter(t => !t.category).sort((a, b) => parseInt(a.tableNumber) - parseInt(b.tableNumber)).map((table) => (
                       <Grid item xs={12} sm={6} md={4} key={table._id}>
-                        <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-                          <CardContent sx={{ textAlign: 'center', py: 1.2, px: 1.2 }}>
-                            <Typography sx={{ fontWeight: 700, fontSize: '16px', color: '#2d5016', mb: 0.5 }}>
-                              Table {table.tableNumber}
-                            </Typography>
-                            <Typography sx={{ fontSize: '11px', color: '#999', mb: 1 }}>
-                              Capacity: {table.capacity} | {table.location}
-                            </Typography>
-                            {table.qrCode && (
-                              <img
-                                src={table.qrCode}
-                                alt={`QR Code for Table ${table.tableNumber}`}
-                                style={{ width: 120, height: 120, marginBottom: '8px' }}
-                              />
-                            )}
-                            <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center' }}>
+                        <Card
+                          sx={{
+                            borderRadius: '12px',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            border: '1.5px solid #e8e8e8',
+                            background: 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)',
+                            '&:hover': {
+                              boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                              transform: 'translateY(-4px)',
+                              borderColor: '#d0d0d0'
+                            }
+                          }}
+                        >
+                          <CardContent sx={{ textAlign: 'center', py: 2, px: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
+                            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                              <Typography sx={{ fontWeight: 700, fontSize: '18px', color: '#2d5016', mb: 0.5 }}>
+                                Table {table.tableNumber}
+                              </Typography>
+                              <Typography sx={{ fontSize: '12px', color: '#999', mb: 1.5 }}>
+                                Capacity: {table.capacity} | {table.location}
+                              </Typography>
+                              {table.qrCode && (
+                                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1.5 }}>
+                                  <img
+                                    src={table.qrCode}
+                                    alt={`QR Code for Table ${table.tableNumber}`}
+                                    style={{ width: 100, height: 100, borderRadius: '8px', border: '2px solid #f0f0f0' }}
+                                  />
+                                </Box>
+                              )}
+                            </Box>
+                            <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'center', pt: 1, borderTop: '1px solid #f0f0f0' }}>
                               {table.qrCode && (
                                 <IconButton
                                   onClick={() => handleDownloadQRCode(table)}
                                   size="small"
-                                  sx={{ color: '#2d5016', fontSize: '16px' }}
+                                  sx={{
+                                    color: '#2d5016',
+                                    fontSize: '16px',
+                                    '&:hover': { bgcolor: 'rgba(45, 80, 22, 0.1)' }
+                                  }}
                                   title="Download QR Code"
                                 >
-                                  <DownloadIcon sx={{ fontSize: '16px' }} />
+                                  <DownloadIcon sx={{ fontSize: '18px' }} />
                                 </IconButton>
                               )}
                               <IconButton
                                 onClick={() => handleEditTable(table)}
                                 size="small"
-                                sx={{ color: '#ff6b35', fontSize: '16px' }}
+                                sx={{
+                                  color: '#ff6b35',
+                                  fontSize: '16px',
+                                  '&:hover': { bgcolor: 'rgba(255, 107, 53, 0.1)' }
+                                }}
                               >
-                                <EditIcon sx={{ fontSize: '16px' }} />
+                                <EditIcon sx={{ fontSize: '18px' }} />
                               </IconButton>
                               <IconButton
                                 onClick={() => handleDeleteTable(table._id)}
                                 size="small"
-                                sx={{ color: '#c62828', fontSize: '16px' }}
+                                sx={{
+                                  color: '#c62828',
+                                  fontSize: '16px',
+                                  '&:hover': { bgcolor: 'rgba(198, 40, 40, 0.1)' }
+                                }}
                               >
-                                <DeleteIcon sx={{ fontSize: '16px' }} />
+                                <DeleteIcon sx={{ fontSize: '18px' }} />
                               </IconButton>
                             </Box>
                           </CardContent>
