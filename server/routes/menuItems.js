@@ -132,14 +132,10 @@ router.put('/:id', upload.single('imageFile'), async (req, res) => {
   }
 });
 
-// DELETE menu item (soft delete)
+// DELETE menu item (permanent delete)
 router.delete('/:id', async (req, res) => {
   try {
-    const menuItem = await MenuItem.findByIdAndUpdate(
-      req.params.id,
-      { isAvailable: false },
-      { new: true }
-    );
+    const menuItem = await MenuItem.findByIdAndDelete(req.params.id);
     if (!menuItem) {
       return res.status(404).json({ message: 'Menu item not found' });
     }

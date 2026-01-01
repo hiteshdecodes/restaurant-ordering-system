@@ -562,7 +562,7 @@ const TableOrders = () => {
                           }
                         }}
                       >
-                        <CardContent sx={{ textAlign: 'center', p: 1.2, width: '100%', '&:last-child': { pb: 1.2 }, minHeight: '80px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <CardContent sx={{ textAlign: 'center', p: 1.2, width: '70px', '&:last-child': { pb: 1.2 }, minHeight: '80px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                           <Typography
                             sx={{
                               fontWeight: 700,
@@ -578,7 +578,7 @@ const TableOrders = () => {
                               fontSize: '11px',
                               color: hasOrders ? '#ff6b35' : '#999',
                               fontWeight: 500,
-                              minWidth: '60px',
+                              width: '70px',
                               height: '16px',
                               display: 'flex',
                               alignItems: 'center',

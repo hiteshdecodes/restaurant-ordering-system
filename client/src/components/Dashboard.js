@@ -1554,7 +1554,7 @@ const Dashboard = () => {
 
       {/* Tables Tab */}
       {activeTab === 5 && (
-        <Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <Box sx={{ mb: 1.5 }}>
             <Button
               variant="contained"
@@ -1578,20 +1578,21 @@ const Dashboard = () => {
             </Button>
           </Box>
 
-          {/* Tables grouped by category */}
-          {tableCategories.length > 0 ? (
-            <>
-              {tableCategories.sort((a, b) => a.order - b.order).map((category) => {
-                const categoryTables = tables.filter(t => t.category?._id === category._id).sort((a, b) => parseInt(a.tableNumber) - parseInt(b.tableNumber));
-                return (
-                  <Box key={category._id} sx={{ mb: 3 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, pb: 1, borderBottom: `2px solid ${category.color}` }}>
-                      <Box sx={{ width: '12px', height: '12px', borderRadius: '50%', bgcolor: category.color }} />
-                      <Typography sx={{ fontWeight: 700, fontSize: '14px', color: '#2d5016' }}>
-                        {category.name} ({categoryTables.length})
-                      </Typography>
-                    </Box>
-                    <Grid container spacing={1.2}>
+          <Box sx={{ overflowY: 'auto', overflowX: 'auto', flex: 1, pr: 1 }}>
+            {/* Tables grouped by category */}
+            {tableCategories.length > 0 ? (
+              <>
+                {tableCategories.sort((a, b) => a.order - b.order).map((category) => {
+                  const categoryTables = tables.filter(t => t.category?._id === category._id).sort((a, b) => parseInt(a.tableNumber) - parseInt(b.tableNumber));
+                  return (
+                    <Box key={category._id} sx={{ mb: 3 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, pb: 1, borderBottom: `2px solid ${category.color}` }}>
+                        <Box sx={{ width: '12px', height: '12px', borderRadius: '50%', bgcolor: category.color }} />
+                        <Typography sx={{ fontWeight: 700, fontSize: '14px', color: '#2d5016' }}>
+                          {category.name} ({categoryTables.length})
+                        </Typography>
+                      </Box>
+                      <Grid container spacing={1.2}>
                       {categoryTables.map((table) => (
                         <Grid item xs={12} sm={6} md={4} key={table._id}>
                           <Card
@@ -1768,13 +1769,14 @@ const Dashboard = () => {
                   </Grid>
                 </Box>
               )}
-            </>
-          ) : (
-            <Box sx={{ textAlign: 'center', py: 3 }}>
-              <Typography sx={{ color: '#999', mb: 1 }}>No categories created yet</Typography>
-              <Typography sx={{ fontSize: '12px', color: '#bbb' }}>Create a category in the "Table Categories" tab first</Typography>
-            </Box>
-          )}
+              </>
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 3 }}>
+                <Typography sx={{ color: '#999', mb: 1 }}>No categories created yet</Typography>
+                <Typography sx={{ fontSize: '12px', color: '#bbb' }}>Create a category in the "Table Categories" tab first</Typography>
+              </Box>
+            )}
+          </Box>
         </Box>
       )}
 
@@ -1821,10 +1823,11 @@ const Dashboard = () => {
             sx={{ mb: 2 }}
           />
           <FormControl fullWidth sx={{ mb: 2 }}>
-            <InputLabel>Category</InputLabel>
+            <InputLabel sx={{ backgroundColor: 'white', px: 0.5 }}>Category</InputLabel>
             <Select
               value={newMenuItem.category}
               onChange={(e) => setNewMenuItem({...newMenuItem, category: e.target.value})}
+              label="Category"
             >
               {categories.map((category) => (
                 <MenuItem key={category._id} value={category._id}>
