@@ -1063,7 +1063,7 @@ const Dashboard = () => {
                       <TableCell sx={{ fontSize: '11px', py: 0.8, px: 1.2, color: '#666' }}>
                         {order.items.map((item, index) => (
                           <div key={index}>
-                            {item.menuItem.name} x{item.quantity}
+                            {item.menuItem ? `${item.menuItem.name} x${item.quantity}` : `Deleted Item x${item.quantity}`}
                           </div>
                         ))}
                       </TableCell>
