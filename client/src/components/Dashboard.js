@@ -864,6 +864,8 @@ const Dashboard = () => {
         <Tabs
           value={activeTab}
           onChange={(e, newValue) => setActiveTab(newValue)}
+          variant="scrollable"
+          scrollButtons="auto"
           sx={{
             minHeight: '48px',
             '& .MuiTabs-indicator': {

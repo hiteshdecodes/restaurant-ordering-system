@@ -543,8 +543,8 @@ const TableOrders = () => {
                         sx={{
                           position: 'relative',
                           cursor: 'pointer',
-                          width: '100%',
-                          aspectRatio: '1',
+                          width: '90px',
+                          height: '90px',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -563,7 +563,7 @@ const TableOrders = () => {
                           }
                         }}
                       >
-                        <CardContent sx={{ textAlign: 'center', p: 1.2, width: '100%', '&:last-child': { pb: 1.2 }, minHeight: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                        <CardContent sx={{ textAlign: 'center', p: 0, '&:last-child': { pb: 0 }, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
                           <Typography
                             sx={{
                               fontWeight: 700,
@@ -579,12 +579,10 @@ const TableOrders = () => {
                               fontSize: '11px',
                               color: hasOrders ? '#ff6b35' : '#999',
                               fontWeight: 500,
-                              width: '100%',
                               height: '16px',
                               display: 'flex',
                               alignItems: 'center',
-                              justifyContent: 'center',
-                              margin: '0 auto'
+                              justifyContent: 'center'
                             }}
                           >
                             {hasOrders ? `${orderCount} order${orderCount > 1 ? 's' : ''}` : 'No orders'}
