@@ -542,6 +542,7 @@ const TableOrders = () => {
                     );
                   })}
               </Box>
+            </Box>
             );
           })}
 
@@ -700,8 +701,6 @@ const TableOrders = () => {
         })()}
       </Box>
 
-      {/* Order Details Dialog */}
-      <>
       <Dialog
         open={orderDialogOpen}
         onClose={() => setOrderDialogOpen(false)}
@@ -1125,7 +1124,6 @@ const TableOrders = () => {
           )}
         </Alert>
       </Snackbar>
-      </>
     </Container>
   );
 };
