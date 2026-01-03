@@ -493,26 +493,50 @@ const TableOrders = () => {
                   />
                 )}
 
-                        <Typography
+                        {/* Main Content - Table Number */}
+                        <Box
                           sx={{
-                            fontWeight: 700,
-                            fontSize: '28px',
-                            color: hasOrders ? '#ff6b35' : '#2d5016',
-                            mb: 0.8,
-                            lineHeight: 1
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            mb: 1,
+                            minHeight: '40px'
                           }}
                         >
-                          {table.tableNumber}
-                        </Typography>
-                        <Typography
+                          <Typography
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: '32px',
+                              color: hasOrders ? '#ff6b35' : '#2d5016',
+                              lineHeight: 1
+                            }}
+                          >
+                            {table.tableNumber}
+                          </Typography>
+                        </Box>
+
+                        {/* Sub Content - Order Count */}
+                        <Box
                           sx={{
-                            fontSize: '12px',
-                            color: hasOrders ? '#ff6b35' : '#999',
-                            fontWeight: 500
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minHeight: '16px'
                           }}
                         >
-                          {hasOrders ? `${orderCount} order${orderCount > 1 ? 's' : ''}` : 'No orders'}
-                        </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: '12px',
+                              color: hasOrders ? '#ff6b35' : '#999',
+                              fontWeight: 500,
+                              textAlign: 'center'
+                            }}
+                          >
+                            {hasOrders ? `${orderCount} order${orderCount > 1 ? 's' : ''}` : 'No orders'}
+                          </Typography>
+                        </Box>
                       </Box>
                     </Grid>
                     );
@@ -584,26 +608,51 @@ const TableOrders = () => {
                           }
                         }}
                       >
-                        <Typography
+                        {/* Main Content - Table Number */}
+                        <Box
                           sx={{
-                            fontWeight: 700,
-                            fontSize: '28px',
-                            color: hasOrders ? '#ff6b35' : '#2d5016',
-                            mb: 0.8,
-                            lineHeight: 1
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            mb: 1,
+                            minHeight: '40px'
                           }}
                         >
-                          {table.tableNumber}
-                        </Typography>
-                        <Typography
+                          <Typography
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: '32px',
+                              color: hasOrders ? '#ff6b35' : '#2d5016',
+                              lineHeight: 1
+                            }}
+                          >
+                            {table.tableNumber}
+                          </Typography>
+                        </Box>
+
+                        {/* Sub Content - Order Count */}
+                        <Box
                           sx={{
-                            fontSize: '12px',
-                            color: hasOrders ? '#ff6b35' : '#999',
-                            fontWeight: 500
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minHeight: '16px'
                           }}
                         >
-                          {hasOrders ? `${orderCount} order${orderCount > 1 ? 's' : ''}` : 'No orders'}
-                        </Typography>
+                          <Typography
+                            sx={{
+                              fontSize: '12px',
+                              color: hasOrders ? '#ff6b35' : '#999',
+                              fontWeight: 500,
+                              textAlign: 'center'
+                            }}
+                          >
+                            {hasOrders ? `${orderCount} order${orderCount > 1 ? 's' : ''}` : 'No orders'}
+                          </Typography>
+                        </Box>
+
                         {hasPendingOrders && (
                           <Box
                             sx={{
