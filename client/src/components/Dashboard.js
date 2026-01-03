@@ -1047,10 +1047,11 @@ const Dashboard = () => {
                     ))}
                   </>
                 ) : (
-                {(() => {
-                  const filteredOrders = orderFilter === 'all' ? orders : orders.filter(o => o.status === orderFilter);
-                  const groupedOrders = groupOrdersByDate(filteredOrders);
-                  const sortedDates = Object.keys(groupedOrders).sort().reverse();
+                  <>
+                    {(() => {
+                      const filteredOrders = orderFilter === 'all' ? orders : orders.filter(o => o.status === orderFilter);
+                      const groupedOrders = groupOrdersByDate(filteredOrders);
+                      const sortedDates = Object.keys(groupedOrders).sort().reverse();
 
                 return sortedDates.flatMap((dateKey, dateIndex) => {
                   const dateOrders = groupedOrders[dateKey];
@@ -1163,10 +1164,11 @@ const Dashboard = () => {
                     )}
                   </TableCell>
                 </TableRow>
-                  ))
-                  ];
-                });
-              })()}
+                      ))
+                    ];
+                    });
+                  })()}
+                  </>
                 )}
               </TableBody>
             </Table>
