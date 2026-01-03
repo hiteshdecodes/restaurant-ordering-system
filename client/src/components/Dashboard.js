@@ -1014,14 +1014,7 @@ const Dashboard = () => {
             </Box>
           )}
 
-          {ordersLoading ? (
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 1.5 }}>
-              {[...Array(6)].map((_, i) => (
-                <LoadingAnimation key={i} variant="table" height="80px" />
-              ))}
-            </Box>
-          ) : (
-            <TableContainer component={Paper} sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+          <TableContainer component={Paper} sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: '#2d5016' }}>
@@ -1043,6 +1036,17 @@ const Dashboard = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
+                {ordersLoading ? (
+                  <>
+                    {[...Array(6)].map((_, i) => (
+                      <TableRow key={`loading-${i}`} sx={{ '&:hover': { backgroundColor: 'transparent' } }}>
+                        <TableCell colSpan={9} sx={{ p: 0, border: 'none' }}>
+                          <LoadingAnimation variant="table-row" height="50px" width="100%" />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
+                ) : (
                 {(() => {
                   const filteredOrders = orderFilter === 'all' ? orders : orders.filter(o => o.status === orderFilter);
                   const groupedOrders = groupOrdersByDate(filteredOrders);
@@ -1163,10 +1167,10 @@ const Dashboard = () => {
                   ];
                 });
               })()}
+                )}
               </TableBody>
             </Table>
           </TableContainer>
-            )}
         </Box>
       )}
 

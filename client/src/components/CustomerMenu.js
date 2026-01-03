@@ -341,10 +341,23 @@ const CustomerMenu = () => {
 
     if (loading) {
       return (
-        <Container maxWidth="lg" sx={{ mt: 4 }}>
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 2 }}>
-            {[...Array(12)].map((_, i) => (
-              <LoadingAnimation key={i} variant="menu" height="280px" />
+        <Container maxWidth="lg" sx={{ mt: 1, mb: 10, px: 1 }}>
+          {/* Header */}
+          <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+            <Box sx={{ textAlign: 'left', flex: 1 }}>
+              <Typography variant="h6" component="h1" sx={{ fontWeight: 700, color: '#2d5016', fontSize: '18px' }}>
+                Restaurant Menu
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#666', fontSize: '12px' }}>
+                Table {tableNumber}
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Loading Animation */}
+          <Box sx={{ mb: 2 }}>
+            {[...Array(8)].map((_, i) => (
+              <LoadingAnimation key={i} variant="menu-row" height="80px" width="100%" />
             ))}
           </Box>
         </Container>

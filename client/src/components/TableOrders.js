@@ -348,8 +348,22 @@ const TableOrders = () => {
 
   if (loading) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 1.5 }}>
+      <Container maxWidth="lg" sx={{ py: 2, px: 1 }}>
+        {/* Header */}
+        <Box sx={{ mb: 2.5, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <Box>
+            <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#2d5016', mb: 0.5 }}>
+              Table Orders
+            </Typography>
+            <Typography sx={{ fontSize: '12px', color: '#999' }}>
+              Click on any table to view its order history
+            </Typography>
+          </Box>
+          <NotificationCenter />
+        </Box>
+
+        {/* Loading Animation Grid */}
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 1.2 }}>
           {[...Array(12)].map((_, i) => (
             <LoadingAnimation key={i} variant="table" height="120px" />
           ))}
