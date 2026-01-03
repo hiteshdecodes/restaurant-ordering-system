@@ -28,6 +28,7 @@ import { List, ListItem } from '@mui/material';
 import axios from 'axios';
 import io from 'socket.io-client';
 import NotificationCenter from './NotificationCenter';
+import LoadingAnimation from './LoadingAnimation';
 import { NotificationContext } from '../context/NotificationContext';
 
 const TableOrders = () => {
@@ -348,7 +349,11 @@ const TableOrders = () => {
   if (loading) {
     return (
       <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Typography>Loading tables...</Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 1.5 }}>
+          {[...Array(12)].map((_, i) => (
+            <LoadingAnimation key={i} variant="table" height="120px" />
+          ))}
+        </Box>
       </Container>
     );
   }

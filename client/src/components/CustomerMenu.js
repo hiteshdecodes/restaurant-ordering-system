@@ -36,6 +36,7 @@ import {
   CheckCircle as CheckCircleIcon
 } from '@mui/icons-material';
 import axios from 'axios';
+import LoadingAnimation from './LoadingAnimation';
 import vegIcon from '../veg icon.png';
 import nonVegIcon from '../non veg.png';
 
@@ -340,8 +341,12 @@ const CustomerMenu = () => {
 
     if (loading) {
       return (
-        <Container maxWidth="lg" sx={{ mt: 4, textAlign: 'center' }}>
-          <Typography variant="h6">Loading menu...</Typography>
+        <Container maxWidth="lg" sx={{ mt: 4 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 2 }}>
+            {[...Array(12)].map((_, i) => (
+              <LoadingAnimation key={i} variant="menu" height="280px" />
+            ))}
+          </Box>
         </Container>
       );
     }

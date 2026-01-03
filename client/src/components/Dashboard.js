@@ -62,6 +62,7 @@ import axios from 'axios';
 import io from 'socket.io-client';
 import NotificationCenter from './NotificationCenter';
 import CustomCheckbox from './CustomCheckbox';
+import LoadingAnimation from './LoadingAnimation';
 import vegIcon from '../veg icon.png';
 import nonVegIcon from '../non veg.png';
 
@@ -94,6 +95,8 @@ const Dashboard = () => {
     pendingOrders: 0,
     totalRevenue: 0
   });
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [ordersLoading, setOrdersLoading] = useState(true);
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [selectedOrderNote, setSelectedOrderNote] = useState('');
 
@@ -268,10 +271,13 @@ const Dashboard = () => {
 
   const fetchOrders = async () => {
     try {
+      setOrdersLoading(true);
       const response = await axios.get(`${API_BASE}/orders`);
       setOrders(response.data);
+      setOrdersLoading(false);
     } catch (error) {
       console.error('Error fetching orders:', error);
+      setOrdersLoading(false);
     }
   };
 
@@ -313,16 +319,19 @@ const Dashboard = () => {
 
   const calculateStats = async () => {
     try {
+      setStatsLoading(true);
       const ordersResponse = await axios.get(`${API_BASE}/orders`);
       const orders = ordersResponse.data;
-      
+
       setStats({
         totalOrders: orders.length,
         pendingOrders: orders.filter(order => order.status === 'pending').length,
         totalRevenue: orders.reduce((sum, order) => sum + order.totalAmount, 0)
       });
+      setStatsLoading(false);
     } catch (error) {
       console.error('Error calculating stats:', error);
+      setStatsLoading(false);
     }
   };
 
@@ -803,60 +812,76 @@ const Dashboard = () => {
 
       {/* Stats Cards */}
       <Grid container spacing={1.5} sx={{ mb: 2.5 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <CardContent sx={{ textAlign: 'center', py: 1.5, px: 1.5 }}>
-              <OrderIcon sx={{ fontSize: 28, color: '#ff6b35', mb: 0.5 }} />
-              <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#ff6b35' }}>
-                {stats.totalOrders}
-              </Typography>
-              <Typography sx={{ fontSize: '12px', color: '#999' }}>
-                Total Orders
-              </Typography>
-            </CardContent>
-          </Card>
+        <Grid item xs={12} sm={6} md={3} sx={{ minWidth: 0 }}>
+          {statsLoading ? (
+            <LoadingAnimation variant="stats" />
+          ) : (
+            <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <CardContent sx={{ textAlign: 'center', py: 1.5, px: 1.5 }}>
+                <OrderIcon sx={{ fontSize: 28, color: '#ff6b35', mb: 0.5 }} />
+                <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#ff6b35' }}>
+                  {stats.totalOrders}
+                </Typography>
+                <Typography sx={{ fontSize: '12px', color: '#999' }}>
+                  Total Orders
+                </Typography>
+              </CardContent>
+            </Card>
+          )}
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <CardContent sx={{ textAlign: 'center', py: 1.5, px: 1.5 }}>
-              <NotificationIcon sx={{ fontSize: 28, color: '#ff9800', mb: 0.5 }} />
-              <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#ff9800' }}>
-                {stats.pendingOrders}
-              </Typography>
-              <Typography sx={{ fontSize: '12px', color: '#999' }}>
-                Pending Orders
-              </Typography>
-            </CardContent>
-          </Card>
+        <Grid item xs={12} sm={6} md={3} sx={{ minWidth: 0 }}>
+          {statsLoading ? (
+            <LoadingAnimation variant="stats" />
+          ) : (
+            <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <CardContent sx={{ textAlign: 'center', py: 1.5, px: 1.5 }}>
+                <NotificationIcon sx={{ fontSize: 28, color: '#ff9800', mb: 0.5 }} />
+                <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#ff9800' }}>
+                  {stats.pendingOrders}
+                </Typography>
+                <Typography sx={{ fontSize: '12px', color: '#999' }}>
+                  Pending Orders
+                </Typography>
+              </CardContent>
+            </Card>
+          )}
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <CardContent sx={{ textAlign: 'center', py: 1.5, px: 1.5 }}>
-              <RestaurantIcon sx={{ fontSize: 28, color: '#2d5016', mb: 0.5 }} />
-              <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#2d5016' }}>
-                {menuItems.length}
-              </Typography>
-              <Typography sx={{ fontSize: '12px', color: '#999' }}>
-                Menu Items
-              </Typography>
-            </CardContent>
-          </Card>
+        <Grid item xs={12} sm={6} md={3} sx={{ minWidth: 0 }}>
+          {statsLoading ? (
+            <LoadingAnimation variant="stats" />
+          ) : (
+            <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <CardContent sx={{ textAlign: 'center', py: 1.5, px: 1.5 }}>
+                <RestaurantIcon sx={{ fontSize: 28, color: '#2d5016', mb: 0.5 }} />
+                <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#2d5016' }}>
+                  {menuItems.length}
+                </Typography>
+                <Typography sx={{ fontSize: '12px', color: '#999' }}>
+                  Menu Items
+                </Typography>
+              </CardContent>
+            </Card>
+          )}
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <CardContent sx={{ textAlign: 'center', py: 1.5, px: 1.5 }}>
-              <TableIcon sx={{ fontSize: 28, color: '#1976d2', mb: 0.5 }} />
-              <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#1976d2' }}>
-                ₹{stats.totalRevenue}
-              </Typography>
-              <Typography sx={{ fontSize: '12px', color: '#999' }}>
-                Total Revenue
-              </Typography>
-            </CardContent>
-          </Card>
+        <Grid item xs={12} sm={6} md={3} sx={{ minWidth: 0 }}>
+          {statsLoading ? (
+            <LoadingAnimation variant="stats" />
+          ) : (
+            <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <CardContent sx={{ textAlign: 'center', py: 1.5, px: 1.5 }}>
+                <TableIcon sx={{ fontSize: 28, color: '#1976d2', mb: 0.5 }} />
+                <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#1976d2' }}>
+                  ₹{stats.totalRevenue}
+                </Typography>
+                <Typography sx={{ fontSize: '12px', color: '#999' }}>
+                  Total Revenue
+                </Typography>
+              </CardContent>
+            </Card>
+          )}
         </Grid>
       </Grid>
 
@@ -989,32 +1014,39 @@ const Dashboard = () => {
             </Box>
           )}
 
-          <TableContainer component={Paper} sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: '#2d5016' }}>
-                <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 0.8, width: '40px' }}>
-                  <CustomCheckbox
-                    id="select-all-orders"
-                    checked={selectedOrders.length === (orderFilter === 'all' ? orders.length : orders.filter(o => o.status === orderFilter).length) && orders.length > 0}
-                    onChange={handleSelectAllOrders}
-                  />
-                </TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Order #</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Table</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Items</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Total</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Status</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Time</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Note</TableCell>
-                <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {(() => {
-                const filteredOrders = orderFilter === 'all' ? orders : orders.filter(o => o.status === orderFilter);
-                const groupedOrders = groupOrdersByDate(filteredOrders);
-                const sortedDates = Object.keys(groupedOrders).sort().reverse();
+          {ordersLoading ? (
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 1.5 }}>
+              {[...Array(6)].map((_, i) => (
+                <LoadingAnimation key={i} variant="table" height="80px" />
+              ))}
+            </Box>
+          ) : (
+            <TableContainer component={Paper} sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#2d5016' }}>
+                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 0.8, width: '40px' }}>
+                    <CustomCheckbox
+                      id="select-all-orders"
+                      checked={selectedOrders.length === (orderFilter === 'all' ? orders.length : orders.filter(o => o.status === orderFilter).length) && orders.length > 0}
+                      onChange={handleSelectAllOrders}
+                    />
+                  </TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Order #</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Table</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Items</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Total</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Status</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Time</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Note</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {(() => {
+                  const filteredOrders = orderFilter === 'all' ? orders : orders.filter(o => o.status === orderFilter);
+                  const groupedOrders = groupOrdersByDate(filteredOrders);
+                  const sortedDates = Object.keys(groupedOrders).sort().reverse();
 
                 return sortedDates.flatMap((dateKey, dateIndex) => {
                   const dateOrders = groupedOrders[dateKey];
@@ -1131,9 +1163,10 @@ const Dashboard = () => {
                   ];
                 });
               })()}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableBody>
+            </Table>
+          </TableContainer>
+            )}
         </Box>
       )}
 

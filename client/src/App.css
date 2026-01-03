@@ -214,3 +214,10 @@
     transform: scale(0.9);
   }
 }
+
+/* ===== Loading Animation - Shimmer Effect ===== */
+@keyframes shimmer {
+  100% {
+    background-position: -100% 0;
+  }
+}
