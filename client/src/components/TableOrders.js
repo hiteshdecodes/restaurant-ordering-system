@@ -425,30 +425,32 @@ const TableOrders = () => {
 
                   return (
                     <Grid item xs={12} sm={6} md={4} lg={2.4} key={table._id}>
-              <Box
-                onClick={() => handleTableClick(table)}
-                sx={{
-                  position: 'relative',
-                  cursor: 'pointer',
-                  aspectRatio: '1',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                  bgcolor: hasOrders ? 'linear-gradient(135deg, rgba(255, 107, 53, 0.12) 0%, rgba(255, 107, 53, 0.04) 100%)' : 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)',
-                  border: '1.5px solid',
-                  borderColor: hasOrders ? '#ff6b35' : '#e8e8e8',
-                  borderRadius: '12px',
-                  boxShadow: hasOrders ? '0 4px 12px rgba(255, 107, 53, 0.1)' : '0 2px 8px rgba(0,0,0,0.06)',
-                  '&:hover': {
-                    transform: 'translateY(-6px)',
-                    boxShadow: hasOrders
-                      ? '0 12px 24px rgba(255, 107, 53, 0.2)'
-                      : '0 8px 16px rgba(0, 0, 0, 0.12)',
-                    borderColor: hasOrders ? '#e55a24' : '#d0d0d0',
-                  }
-                }}
-              >
+                      <Box
+                        onClick={() => handleTableClick(table)}
+                        sx={{
+                          position: 'relative',
+                          cursor: 'pointer',
+                          height: '120px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          bgcolor: hasOrders ? 'linear-gradient(135deg, rgba(255, 107, 53, 0.12) 0%, rgba(255, 107, 53, 0.04) 100%)' : 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)',
+                          border: '1.5px solid',
+                          borderColor: hasOrders ? '#ff6b35' : '#e8e8e8',
+                          borderRadius: '8px',
+                          boxShadow: hasOrders ? '0 4px 12px rgba(255, 107, 53, 0.1)' : '0 2px 8px rgba(0,0,0,0.06)',
+                          padding: '12px',
+                          '&:hover': {
+                            transform: 'translateY(-6px)',
+                            boxShadow: hasOrders
+                              ? '0 12px 24px rgba(255, 107, 53, 0.2)'
+                              : '0 8px 16px rgba(0, 0, 0, 0.12)',
+                            borderColor: hasOrders ? '#e55a24' : '#d0d0d0',
+                          }
+                        }}
+                      >
                 {/* Status Indicator Dot */}
                 {/* Red dot for pending orders */}
                 {hasPendingOrders && (
@@ -491,29 +493,28 @@ const TableOrders = () => {
                   />
                 )}
 
-                <CardContent sx={{ textAlign: 'center', p: 1.2, width: '100%' }}>
-                  <Typography
-                    sx={{
-                      fontWeight: 700,
-                      fontSize: '24px',
-                      color: hasOrders ? '#ff6b35' : '#2d5016',
-                      mb: 0.5
-                    }}
-                  >
-                    {table.tableNumber}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontSize: '11px',
-                      color: hasOrders ? '#ff6b35' : '#999',
-                      fontWeight: 500
-                    }}
-                  >
-                    {hasOrders ? `${orderCount} order${orderCount > 1 ? 's' : ''}` : 'No orders'}
-                  </Typography>
-                </CardContent>
-              </Box>
-                      </Grid>
+                        <Typography
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: '28px',
+                            color: hasOrders ? '#ff6b35' : '#2d5016',
+                            mb: 0.8,
+                            lineHeight: 1
+                          }}
+                        >
+                          {table.tableNumber}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '12px',
+                            color: hasOrders ? '#ff6b35' : '#999',
+                            fontWeight: 500
+                          }}
+                        >
+                          {hasOrders ? `${orderCount} order${orderCount > 1 ? 's' : ''}` : 'No orders'}
+                        </Typography>
+                      </Box>
+                    </Grid>
                     );
                   })}
                 </Grid>
@@ -562,51 +563,47 @@ const TableOrders = () => {
                         sx={{
                           position: 'relative',
                           cursor: 'pointer',
-                          width: '90px',
-                          height: '90px',
+                          height: '120px',
                           display: 'flex',
+                          flexDirection: 'column',
                           alignItems: 'center',
                           justifyContent: 'center',
                           transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                          bgcolor: hasOrders ? 'rgba(255, 107, 53, 0.08)' : '#fafafa',
+                          bgcolor: hasOrders ? 'linear-gradient(135deg, rgba(255, 107, 53, 0.12) 0%, rgba(255, 107, 53, 0.04) 100%)' : 'linear-gradient(135deg, #fafafa 0%, #ffffff 100%)',
                           border: '1.5px solid',
-                          borderColor: hasOrders ? '#ff6b35' : '#e0e0e0',
+                          borderColor: hasOrders ? '#ff6b35' : '#e8e8e8',
                           borderRadius: '8px',
-                          boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+                          boxShadow: hasOrders ? '0 4px 12px rgba(255, 107, 53, 0.1)' : '0 2px 8px rgba(0,0,0,0.06)',
+                          padding: '12px',
                           '&:hover': {
-                            transform: 'translateY(-4px)',
+                            transform: 'translateY(-6px)',
                             boxShadow: hasOrders
-                              ? '0 8px 16px rgba(255, 107, 53, 0.2)'
-                              : '0 6px 12px rgba(0, 0, 0, 0.12)',
-                            borderColor: hasOrders ? '#e55a24' : '#bdbdbd',
+                              ? '0 12px 24px rgba(255, 107, 53, 0.2)'
+                              : '0 8px 16px rgba(0, 0, 0, 0.12)',
+                            borderColor: hasOrders ? '#e55a24' : '#d0d0d0',
                           }
                         }}
                       >
-                        <CardContent sx={{ textAlign: 'center', p: 0, '&:last-child': { pb: 0 }, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
-                          <Typography
-                            sx={{
-                              fontWeight: 700,
-                              fontSize: '24px',
-                              color: hasOrders ? '#ff6b35' : '#2d5016',
-                              mb: 0.5
-                            }}
-                          >
-                            {table.tableNumber}
-                          </Typography>
-                          <Typography
-                            sx={{
-                              fontSize: '11px',
-                              color: hasOrders ? '#ff6b35' : '#999',
-                              fontWeight: 500,
-                              height: '16px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center'
-                            }}
-                          >
-                            {hasOrders ? `${orderCount} order${orderCount > 1 ? 's' : ''}` : 'No orders'}
-                          </Typography>
-                        </CardContent>
+                        <Typography
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: '28px',
+                            color: hasOrders ? '#ff6b35' : '#2d5016',
+                            mb: 0.8,
+                            lineHeight: 1
+                          }}
+                        >
+                          {table.tableNumber}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            fontSize: '12px',
+                            color: hasOrders ? '#ff6b35' : '#999',
+                            fontWeight: 500
+                          }}
+                        >
+                          {hasOrders ? `${orderCount} order${orderCount > 1 ? 's' : ''}` : 'No orders'}
+                        </Typography>
                         {hasPendingOrders && (
                           <Box
                             sx={{
