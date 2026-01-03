@@ -412,7 +412,7 @@ const TableOrders = () => {
                   ({tablesInCategory.length} tables)
                 </Typography>
               </Box>
-              <Grid container spacing={1.2}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 1.2 }}>
                 {tablesInCategory.sort((a, b) => a.tableNumber - b.tableNumber).map((table) => {
                   const hasOrders = tableOrders[table.tableNumber]?.length > 0;
                   const hasPendingOrders = tableOrders[table.tableNumber]?.some(order =>
@@ -424,7 +424,7 @@ const TableOrders = () => {
                   const orderCount = tableOrders[table.tableNumber]?.length || 0;
 
                   return (
-                    <Grid item xs={12} sm={6} md={4} lg={2.4} key={table._id}>
+                    <Box key={table._id}>
                       <Box
                         onClick={() => handleTableClick(table)}
                         sx={{
@@ -538,10 +538,9 @@ const TableOrders = () => {
                           </Typography>
                         </Box>
                       </Box>
-                    </Grid>
+                    </Box>
                     );
                   })}
-                </Grid>
               </Box>
             );
           })}
@@ -569,7 +568,7 @@ const TableOrders = () => {
                   ({uncategorizedTables.length} tables)
                 </Typography>
               </Box>
-              <Grid container spacing={1.2}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 1.2 }}>
                 {uncategorizedTables.sort((a, b) => a.tableNumber - b.tableNumber).map((table) => {
                   const hasOrders = tableOrders[table.tableNumber]?.length > 0;
                   const hasPendingOrders = tableOrders[table.tableNumber]?.some(order =>
@@ -581,7 +580,7 @@ const TableOrders = () => {
                   const orderCount = tableOrders[table.tableNumber]?.length || 0;
 
                   return (
-                    <Grid item xs={12} sm={6} md={4} lg={2.4} key={table._id}>
+                    <Box key={table._id}>
                       <Box
                         onClick={() => handleTableClick(table)}
                         sx={{
@@ -692,10 +691,10 @@ const TableOrders = () => {
                           />
                         )}
                       </Box>
-                    </Grid>
+                    </Box>
                   );
                 })}
-              </Grid>
+              </Box>
             </Box>
           );
         })()}
