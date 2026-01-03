@@ -104,3 +104,113 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ===== Custom Input Styling ===== */
+.custom-input {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.custom-input:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border-color: #ff6b35 !important;
+}
+
+.custom-input:focus {
+  transform: translateY(-2px) !important;
+  outline: none !important;
+  border-color: #ff6b35 !important;
+  box-shadow: 0 6px 16px rgba(255, 107, 53, 0.15) !important;
+}
+
+/* ===== Custom Checkbox Styling ===== */
+.checkbox-wrapper-custom input[type="checkbox"] {
+  display: none;
+  visibility: hidden;
+}
+
+.checkbox-wrapper-custom .cbx {
+  margin: auto;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox-wrapper-custom .cbx span {
+  display: inline-block;
+  vertical-align: middle;
+  transform: translate3d(0, 0, 0);
+}
+
+.checkbox-wrapper-custom .cbx span:first-child {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  transform: scale(1);
+  vertical-align: middle;
+  border: 1.5px solid #d0d0d0;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.checkbox-wrapper-custom .cbx span:first-child svg {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 16px;
+  stroke-dashoffset: 16px;
+  transition: all 0.3s ease;
+  transition-delay: 0.1s;
+  transform: translate3d(0, 0, 0);
+}
+
+.checkbox-wrapper-custom .cbx span:first-child:before {
+  content: "";
+  width: 100%;
+  height: 100%;
+  background: #ff6b35;
+  display: block;
+  transform: scale(0);
+  opacity: 1;
+  border-radius: 50%;
+}
+
+.checkbox-wrapper-custom .cbx span:last-child {
+  padding-left: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.checkbox-wrapper-custom .cbx:hover span:first-child {
+  border-color: #ff6b35;
+}
+
+.checkbox-wrapper-custom .inp-cbx:checked + .cbx span:first-child {
+  background: #ff6b35;
+  border-color: #ff6b35;
+  animation: wave-custom 0.4s ease;
+}
+
+.checkbox-wrapper-custom .inp-cbx:checked + .cbx span:first-child svg {
+  stroke-dashoffset: 0;
+}
+
+.checkbox-wrapper-custom .inp-cbx:checked + .cbx span:first-child:before {
+  transform: scale(3.5);
+  opacity: 0;
+  transition: all 0.6s ease;
+}
+
+@keyframes wave-custom {
+  50% {
+    transform: scale(0.9);
+  }
+}

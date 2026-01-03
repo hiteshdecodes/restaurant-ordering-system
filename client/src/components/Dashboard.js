@@ -61,6 +61,7 @@ import {
 import axios from 'axios';
 import io from 'socket.io-client';
 import NotificationCenter from './NotificationCenter';
+import CustomCheckbox from './CustomCheckbox';
 import vegIcon from '../veg icon.png';
 import nonVegIcon from '../non veg.png';
 
@@ -993,10 +994,10 @@ const Dashboard = () => {
             <TableHead>
               <TableRow sx={{ backgroundColor: '#2d5016' }}>
                 <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 0.8, width: '40px' }}>
-                  <Checkbox
+                  <CustomCheckbox
+                    id="select-all-orders"
                     checked={selectedOrders.length === (orderFilter === 'all' ? orders.length : orders.filter(o => o.status === orderFilter).length) && orders.length > 0}
                     onChange={handleSelectAllOrders}
-                    sx={{ color: 'white', '&.Mui-checked': { color: 'white' } }}
                   />
                 </TableCell>
                 <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Order #</TableCell>
@@ -1034,9 +1035,9 @@ const Dashboard = () => {
                   return [
                     <TableRow key={`date-${dateKey}`} sx={{ backgroundColor: '#f0f0f0', '& td': { backgroundColor: '#f0f0f0' } }}>
                       <TableCell sx={{ py: 1, px: 0.8, width: '40px', backgroundColor: '#f0f0f0' }}>
-                        <Checkbox
+                        <CustomCheckbox
+                          id={`select-date-${dateKey}`}
                           checked={allDateOrdersSelected}
-                          indeterminate={someDateOrdersSelected && !allDateOrdersSelected}
                           onChange={handleSelectAllForDate}
                         />
                       </TableCell>
@@ -1047,7 +1048,8 @@ const Dashboard = () => {
                   ...groupedOrders[dateKey].map((order) => (
                     <TableRow key={order._id} sx={{ '&:hover': { backgroundColor: '#f5f5f5' }, borderBottom: '1px solid #eee', backgroundColor: selectedOrders.includes(order._id) ? '#fff3e0' : 'transparent' }}>
                       <TableCell sx={{ fontSize: '12px', py: 0.8, px: 0.8, width: '40px' }}>
-                        <Checkbox
+                        <CustomCheckbox
+                          id={`order-${order._id}`}
                           checked={selectedOrders.includes(order._id)}
                           onChange={() => handleSelectOrder(order._id)}
                         />
@@ -1805,6 +1807,7 @@ const Dashboard = () => {
             label="Name"
             value={newMenuItem.name}
             onChange={(e) => setNewMenuItem({...newMenuItem, name: e.target.value})}
+            inputProps={{ className: 'custom-input' }}
             sx={{ mb: 2, mt: 1 }}
           />
           <TextField
@@ -1814,6 +1817,7 @@ const Dashboard = () => {
             rows={3}
             value={newMenuItem.description}
             onChange={(e) => setNewMenuItem({...newMenuItem, description: e.target.value})}
+            inputProps={{ className: 'custom-input' }}
             sx={{ mb: 2 }}
           />
           <TextField
@@ -1822,6 +1826,7 @@ const Dashboard = () => {
             type="number"
             value={newMenuItem.price}
             onChange={(e) => setNewMenuItem({...newMenuItem, price: e.target.value})}
+            inputProps={{ className: 'custom-input' }}
             sx={{ mb: 2 }}
           />
           <FormControl fullWidth sx={{ mb: 2 }}>
@@ -1937,6 +1942,7 @@ const Dashboard = () => {
                   value={newMenuItem.image}
                   onChange={(e) => setNewMenuItem({...newMenuItem, image: e.target.value})}
                   placeholder="https://example.com/image.jpg"
+                  inputProps={{ className: 'custom-input' }}
                   sx={{ mb: 0 }}
                 />
               </Box>
@@ -1999,6 +2005,7 @@ const Dashboard = () => {
             label="Name"
             value={newCategory.name}
             onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
+            inputProps={{ className: 'custom-input' }}
             sx={{ mb: 2, mt: 1 }}
           />
           <TextField
@@ -2008,6 +2015,7 @@ const Dashboard = () => {
             rows={3}
             value={newCategory.description}
             onChange={(e) => setNewCategory({...newCategory, description: e.target.value})}
+            inputProps={{ className: 'custom-input' }}
           />
         </DialogContent>
         <DialogActions>
@@ -2031,6 +2039,7 @@ const Dashboard = () => {
             label="Table Number"
             value={newTable.tableNumber}
             onChange={(e) => setNewTable({...newTable, tableNumber: e.target.value})}
+            inputProps={{ className: 'custom-input' }}
             sx={{ mb: 2, mt: 1 }}
           />
           <TextField
@@ -2039,6 +2048,7 @@ const Dashboard = () => {
             type="number"
             value={newTable.capacity}
             onChange={(e) => setNewTable({...newTable, capacity: e.target.value})}
+            inputProps={{ className: 'custom-input' }}
             sx={{ mb: 2 }}
           />
           <TextField
@@ -2046,6 +2056,7 @@ const Dashboard = () => {
             label="Location"
             value={newTable.location}
             onChange={(e) => setNewTable({...newTable, location: e.target.value})}
+            inputProps={{ className: 'custom-input' }}
             sx={{ mb: 2 }}
           />
           <FormControl fullWidth>
@@ -2083,6 +2094,7 @@ const Dashboard = () => {
             label="Category Name"
             value={newTableCategory.name}
             onChange={(e) => setNewTableCategory({...newTableCategory, name: e.target.value})}
+            inputProps={{ className: 'custom-input' }}
             sx={{ mb: 2, mt: 1 }}
           />
           <TextField
@@ -2090,6 +2102,7 @@ const Dashboard = () => {
             label="Description"
             value={newTableCategory.description}
             onChange={(e) => setNewTableCategory({...newTableCategory, description: e.target.value})}
+            inputProps={{ className: 'custom-input' }}
             sx={{ mb: 2 }}
             multiline
             rows={2}
@@ -2289,7 +2302,7 @@ const Dashboard = () => {
                   size="small"
                   value={addItemQuantity}
                   onChange={(e) => setAddItemQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  inputProps={{ min: 1 }}
+                  inputProps={{ min: 1, className: 'custom-input' }}
                   sx={{ width: '80px' }}
                 />
                 <Button

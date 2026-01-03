@@ -985,7 +985,7 @@ const TableOrders = () => {
                   size="small"
                   value={addItemQuantity}
                   onChange={(e) => setAddItemQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  inputProps={{ min: 1 }}
+                  inputProps={{ min: 1, className: 'custom-input' }}
                   sx={{ width: '80px' }}
                 />
                 <Button

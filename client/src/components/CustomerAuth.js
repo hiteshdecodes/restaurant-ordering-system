@@ -187,6 +187,7 @@ const CustomerAuth = ({ open, onClose, onAuthenticated }) => {
               }}
               placeholder="Enter 10-digit mobile number"
               size="small"
+              inputProps={{ className: 'custom-input' }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -217,6 +218,7 @@ const CustomerAuth = ({ open, onClose, onAuthenticated }) => {
               }}
               placeholder="Enter 6-digit OTP"
               size="small"
+              inputProps={{ className: 'custom-input' }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -259,6 +261,7 @@ const CustomerAuth = ({ open, onClose, onAuthenticated }) => {
               }}
               placeholder="Enter your full name"
               size="small"
+              inputProps={{ className: 'custom-input' }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
