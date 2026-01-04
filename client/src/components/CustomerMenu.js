@@ -46,7 +46,7 @@ const CustomerMenu = () => {
   const [selectedCategory, setSelectedCategory] = useState(0);
   const [cart, setCart] = useState([]);
   const [cartOpen, setCartOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // Used in menu items rendering
   const [tableNumber, setTableNumber] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
@@ -339,30 +339,7 @@ const CustomerMenu = () => {
     }
   };
 
-    if (loading) {
-      return (
-        <Container maxWidth="lg" sx={{ mt: 1, mb: 10, px: 1 }}>
-          {/* Header */}
-          <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
-            <Box sx={{ textAlign: 'left', flex: 1 }}>
-              <Typography variant="h6" component="h1" sx={{ fontWeight: 700, color: '#2d5016', fontSize: '18px' }}>
-                Restaurant Menu
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#666', fontSize: '12px' }}>
-                Table {tableNumber}
-              </Typography>
-            </Box>
-          </Box>
 
-          {/* Loading Animation */}
-          <Box sx={{ mb: 2 }}>
-            {[...Array(8)].map((_, i) => (
-              <LoadingAnimation key={i} variant="menu-row" height="80px" width="100%" />
-            ))}
-          </Box>
-        </Container>
-      );
-    }
 
     return (
       <Container maxWidth="lg" sx={{ mt: 1, mb: 10, px: 1 }}>
@@ -474,7 +451,13 @@ const CustomerMenu = () => {
 
         {/* Menu Items List - Grouped by Category */}
         <Box>
-          {Object.entries(getGroupedItems()).length === 0 ? (
+          {loading ? (
+            <Box sx={{ mb: 2 }}>
+              {[...Array(8)].map((_, i) => (
+                <LoadingAnimation key={i} variant="menu-row" height="80px" width="100%" />
+              ))}
+            </Box>
+          ) : Object.entries(getGroupedItems()).length === 0 ? (
             <Box sx={{ p: 3, textAlign: 'center', color: 'text.secondary' }}>
               <Typography variant="body1">No items found matching your search</Typography>
             </Box>
@@ -730,20 +713,88 @@ const CustomerMenu = () => {
             )}
           </Box>
 
-          <Box sx={{ p: 1.2, borderTop: '1px solid #eee', bgcolor: '#fafafa' }}>
+          <Box sx={{ p: 1.2, borderTop: '1px solid #eee', bgcolor: '#fafafa', overflowY: 'auto' }}>
+            {/* Customer Info Card */}
             {customerData && (
-              <Box sx={{ mb: 1, p: 1, bgcolor: 'white', borderRadius: '6px' }}>
-                <Typography sx={{ fontSize: '11px', color: '#666' }}>
-                  Order for: <strong>{customerData.name}</strong>
+              <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
+                <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#2d5016', mb: 0.8 }}>
+                  Order Details
                 </Typography>
-                <Typography sx={{ fontSize: '11px', color: '#666' }}>
-                  Phone: <strong>{customerData.phone}</strong>
-                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                  <Typography sx={{ fontSize: '11px', color: '#666' }}>
+                    Name: <strong>{customerData.name}</strong>
+                  </Typography>
+                  <Typography sx={{ fontSize: '11px', color: '#666' }}>
+                    Phone: <strong>{customerData.phone}</strong>
+                  </Typography>
+                  <Typography sx={{ fontSize: '11px', color: '#666' }}>
+                    Table: <strong>{tableNumber}</strong>
+                  </Typography>
+                </Box>
               </Box>
             )}
 
-            {/* Order Note Field */}
-            <Box sx={{ mb: 1.2 }}>
+            {/* Shipping Card */}
+            <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
+              <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#2d5016', mb: 0.8 }}>
+                Delivery
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                <Box sx={{ width: '32px', height: '32px', bgcolor: '#f0f0f0', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography sx={{ fontSize: '16px' }}>🚚</Typography>
+                </Box>
+                <Box>
+                  <Typography sx={{ fontSize: '11px', color: '#666' }}>
+                    Dine-in at Table {tableNumber}
+                  </Typography>
+                  <Typography sx={{ fontSize: '10px', color: '#999' }}>
+                    Ready in ~30 minutes
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Promo Code Card */}
+            <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
+              <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#2d5016', mb: 0.8 }}>
+                Promo Code
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 0.6 }}>
+                <TextField
+                  placeholder="Enter code"
+                  size="small"
+                  sx={{
+                    flex: 1,
+                    fontSize: '12px',
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '6px',
+                      height: '32px'
+                    }
+                  }}
+                />
+                <Button
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    fontSize: '11px',
+                    textTransform: 'none',
+                    borderColor: '#ff6b35',
+                    color: '#ff6b35',
+                    py: 0.5,
+                    px: 1.2,
+                    '&:hover': { bgcolor: '#fff3e0' }
+                  }}
+                >
+                  Apply
+                </Button>
+              </Box>
+            </Box>
+
+            {/* Special Instructions Card */}
+            <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
+              <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#2d5016', mb: 0.8 }}>
+                Special Instructions
+              </Typography>
               <TextField
                 fullWidth
                 multiline
@@ -757,7 +808,7 @@ const CustomerMenu = () => {
                   fontSize: '12px',
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '6px',
-                    bgcolor: 'white'
+                    bgcolor: '#fafafa'
                   },
                   '& .MuiFormHelperText-root': {
                     fontSize: '10px',
@@ -767,10 +818,32 @@ const CustomerMenu = () => {
               />
             </Box>
 
-            <Box sx={{ mb: 1.2, p: 1.2, bgcolor: '#ff6b35', color: 'white', borderRadius: '6px', textAlign: 'center' }}>
-              <Typography sx={{ fontWeight: 700, fontSize: '14px' }}>Total: ₹{getTotalAmount()}</Typography>
+            {/* Payment Details Card */}
+            <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
+              <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#2d5016', mb: 0.8 }}>
+                Payment Details
+              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.6 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#666' }}>
+                  <Typography>Subtotal</Typography>
+                  <Typography>₹{getTotalAmount().toFixed(2)}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#666' }}>
+                  <Typography>Taxes & Charges</Typography>
+                  <Typography>₹0.00</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#666' }}>
+                  <Typography>Delivery Fee</Typography>
+                  <Typography>₹0.00</Typography>
+                </Box>
+                <Box sx={{ borderTop: '1px solid #eee', pt: 0.6, mt: 0.6, display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 600, color: '#2d5016' }}>
+                  <Typography>Total Amount</Typography>
+                  <Typography sx={{ color: '#ff6b35', fontSize: '13px' }}>₹{getTotalAmount().toFixed(2)}</Typography>
+                </Box>
+              </Box>
             </Box>
 
+            {/* Action Buttons */}
             <Box sx={{ display: 'flex', gap: 0.8 }}>
               <Button
                 fullWidth

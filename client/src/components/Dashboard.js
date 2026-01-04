@@ -97,6 +97,7 @@ const Dashboard = () => {
   });
   const [statsLoading, setStatsLoading] = useState(true);
   const [ordersLoading, setOrdersLoading] = useState(true);
+  const [isInitialFetch, setIsInitialFetch] = useState(true);
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [selectedOrderNote, setSelectedOrderNote] = useState('');
 
@@ -250,16 +251,22 @@ const Dashboard = () => {
         setNewOrderAlert(false);
         setNotificationOpen(false);
       }, 8000);
+
+      // Recalculate stats when new order arrives
+      calculateStats();
     });
 
     newSocket.on('order-status-updated', (updatedOrder) => {
-      setOrders(prev => prev.map(order => 
+      setOrders(prev => prev.map(order =>
         order._id === updatedOrder._id ? updatedOrder : order
       ));
+
+      // Recalculate stats when order status changes
+      calculateStats();
     });
 
     // Fetch initial data
-    fetchOrders();
+    fetchOrders(true);
     fetchCategories();
     fetchMenuItems();
     fetchTables();
@@ -269,15 +276,21 @@ const Dashboard = () => {
     return () => newSocket.close();
   }, []);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (isInitial = false) => {
     try {
-      setOrdersLoading(true);
+      if (isInitial) {
+        setOrdersLoading(true);
+      }
       const response = await axios.get(`${API_BASE}/orders`);
       setOrders(response.data);
-      setOrdersLoading(false);
+      if (isInitial) {
+        setOrdersLoading(false);
+      }
     } catch (error) {
       console.error('Error fetching orders:', error);
-      setOrdersLoading(false);
+      if (isInitial) {
+        setOrdersLoading(false);
+      }
     }
   };
 
