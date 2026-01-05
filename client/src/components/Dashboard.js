@@ -773,7 +773,7 @@ const Dashboard = () => {
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, py: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <DashboardIcon sx={{ fontSize: 28, color: '#2d5016', mr: 1.5 }} />
-          <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#2d5016' }}>
+          <Typography sx={{ fontWeight: 500, fontSize: '20px', color: '#2d5016' }}>
             Restaurant Dashboard
           </Typography>
         </Box>
@@ -832,7 +832,7 @@ const Dashboard = () => {
             <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
               <CardContent sx={{ textAlign: 'center', py: 1.5, px: 1.5 }}>
                 <OrderIcon sx={{ fontSize: 28, color: '#ff6b35', mb: 0.5 }} />
-                <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#ff6b35' }}>
+                <Typography sx={{ fontWeight: 500, fontSize: '20px', color: '#ff6b35' }}>
                   {stats.totalOrders}
                 </Typography>
                 <Typography sx={{ fontSize: '12px', color: '#999' }}>
@@ -850,7 +850,7 @@ const Dashboard = () => {
             <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
               <CardContent sx={{ textAlign: 'center', py: 1.5, px: 1.5 }}>
                 <NotificationIcon sx={{ fontSize: 28, color: '#ff9800', mb: 0.5 }} />
-                <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#ff9800' }}>
+                <Typography sx={{ fontWeight: 500, fontSize: '20px', color: '#ff9800' }}>
                   {stats.pendingOrders}
                 </Typography>
                 <Typography sx={{ fontSize: '12px', color: '#999' }}>
@@ -868,7 +868,7 @@ const Dashboard = () => {
             <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
               <CardContent sx={{ textAlign: 'center', py: 1.5, px: 1.5 }}>
                 <RestaurantIcon sx={{ fontSize: 28, color: '#2d5016', mb: 0.5 }} />
-                <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#2d5016' }}>
+                <Typography sx={{ fontWeight: 500, fontSize: '20px', color: '#2d5016' }}>
                   {menuItems.length}
                 </Typography>
                 <Typography sx={{ fontSize: '12px', color: '#999' }}>
@@ -886,7 +886,7 @@ const Dashboard = () => {
             <Card sx={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
               <CardContent sx={{ textAlign: 'center', py: 1.5, px: 1.5 }}>
                 <TableIcon sx={{ fontSize: 28, color: '#1976d2', mb: 0.5 }} />
-                <Typography sx={{ fontWeight: 700, fontSize: '20px', color: '#1976d2' }}>
+                <Typography sx={{ fontWeight: 500, fontSize: '20px', color: '#1976d2' }}>
                   ₹{stats.totalRevenue}
                 </Typography>
                 <Typography sx={{ fontSize: '12px', color: '#999' }}>
@@ -920,7 +920,7 @@ const Dashboard = () => {
               color: '#666',
               '&.Mui-selected': {
                 color: '#ff6b35',
-                fontWeight: 600
+                fontWeight: 500
               }
             }
           }}
@@ -1031,21 +1031,21 @@ const Dashboard = () => {
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: '#2d5016' }}>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 0.8, width: '40px' }}>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 0.8, width: '40px' }}>
                     <CustomCheckbox
                       id="select-all-orders"
                       checked={selectedOrders.length === (orderFilter === 'all' ? orders.length : orders.filter(o => o.status === orderFilter).length) && orders.length > 0}
                       onChange={handleSelectAllOrders}
                     />
                   </TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Order #</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Table</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Items</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Total</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Status</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Time</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Note</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Actions</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Order #</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Table</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Items</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Total</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Status</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Time</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Note</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1091,7 +1091,7 @@ const Dashboard = () => {
                           onChange={handleSelectAllForDate}
                         />
                       </TableCell>
-                      <TableCell colSpan={8} sx={{ py: 1, px: 1.2, fontWeight: 600, color: '#2d5016', fontSize: '12px', backgroundColor: '#f0f0f0' }}>
+                      <TableCell colSpan={8} sx={{ py: 1, px: 1.2, fontWeight: 500, color: '#2d5016', fontSize: '12px', backgroundColor: '#f0f0f0' }}>
                         {getDateLabel(dateKey)}
                       </TableCell>
                     </TableRow>,
@@ -1121,7 +1121,7 @@ const Dashboard = () => {
                           </div>
                         ))}
                       </TableCell>
-                      <TableCell sx={{ fontSize: '12px', py: 0.8, px: 1.2, color: '#ff6b35', fontWeight: 600 }}>₹{order.totalAmount}</TableCell>
+                      <TableCell sx={{ fontSize: '12px', py: 0.8, px: 1.2, color: '#ff6b35', fontWeight: 500 }}>₹{order.totalAmount}</TableCell>
                       <TableCell sx={{ fontSize: '11px', py: 0.8, px: 1.2 }}>
                         <Chip
                           label={order.status}
@@ -1230,7 +1230,7 @@ const Dashboard = () => {
 
           {/* Menu Filters */}
           <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-            <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#2d5016' }}>Filter:</Typography>
+            <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016' }}>Filter:</Typography>
 
             {/* Category Filter */}
             <FormControl size="small" sx={{ minWidth: 120 }}>
@@ -1288,13 +1288,13 @@ const Dashboard = () => {
             <Table>
               <TableHead>
                 <TableRow sx={{ backgroundColor: '#2d5016' }}>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Name</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Category</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Price</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Available</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Veg</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Spicy</TableCell>
-                  <TableCell sx={{ color: 'white', fontWeight: 600, fontSize: '12px', py: 1, px: 1.2 }}>Actions</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Name</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Category</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Price</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Available</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Veg</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Spicy</TableCell>
+                  <TableCell sx={{ color: 'white', fontWeight: 500, fontSize: '12px', py: 1, px: 1.2 }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1312,7 +1312,7 @@ const Dashboard = () => {
                   <TableRow key={item._id} sx={{ '&:hover': { backgroundColor: '#f5f5f5' }, borderBottom: '1px solid #eee' }}>
                     <TableCell sx={{ fontSize: '12px', py: 0.8, px: 1.2, color: '#1a1a1a' }}>{item.name}</TableCell>
                     <TableCell sx={{ fontSize: '12px', py: 0.8, px: 1.2, color: '#666' }}>{item.category.name}</TableCell>
-                    <TableCell sx={{ fontSize: '12px', py: 0.8, px: 1.2, color: '#ff6b35', fontWeight: 600 }}>₹{item.price}</TableCell>
+                    <TableCell sx={{ fontSize: '12px', py: 0.8, px: 1.2, color: '#ff6b35', fontWeight: 500 }}>₹{item.price}</TableCell>
                     <TableCell sx={{ fontSize: '12px', py: 0.8, px: 1.2 }}>
                       <Switch
                         checked={item.isAvailable}
@@ -1419,7 +1419,7 @@ const Dashboard = () => {
                     <Box sx={{ flex: 1 }}>
                       <Typography
                         sx={{
-                          fontWeight: 700,
+                          fontWeight: 500,
                           fontSize: '16px',
                           color: '#2d5016',
                           mb: 1,
@@ -1536,7 +1536,7 @@ const Dashboard = () => {
                         />
                         <Typography
                           sx={{
-                            fontWeight: 700,
+                            fontWeight: 500,
                             fontSize: '16px',
                             color: '#2d5016',
                             display: '-webkit-box',
@@ -1572,7 +1572,7 @@ const Dashboard = () => {
                           height: '24px',
                           bgcolor: `${category.color}20`,
                           color: category.color,
-                          fontWeight: 600
+                          fontWeight: 500
                         }}
                       />
                       <Box sx={{ display: 'flex', gap: 0.5 }}>
@@ -1644,7 +1644,7 @@ const Dashboard = () => {
                     <Box key={category._id} sx={{ mb: 3 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, pb: 1, borderBottom: `2px solid ${category.color}` }}>
                         <Box sx={{ width: '12px', height: '12px', borderRadius: '50%', bgcolor: category.color }} />
-                        <Typography sx={{ fontWeight: 700, fontSize: '14px', color: '#2d5016' }}>
+                        <Typography sx={{ fontWeight: 500, fontSize: '14px', color: '#2d5016' }}>
                           {category.name} ({categoryTables.length})
                         </Typography>
                       </Box>
@@ -1670,7 +1670,7 @@ const Dashboard = () => {
                           >
                             <CardContent sx={{ textAlign: 'center', py: 2, px: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
                               <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                                <Typography sx={{ fontWeight: 700, fontSize: '18px', color: '#2d5016', mb: 0.5 }}>
+                                <Typography sx={{ fontWeight: 500, fontSize: '18px', color: '#2d5016', mb: 0.5 }}>
                                   Table {table.tableNumber}
                                 </Typography>
                                 <Typography sx={{ fontSize: '12px', color: '#999', mb: 1.5 }}>
@@ -1738,7 +1738,7 @@ const Dashboard = () => {
                 <Box sx={{ mb: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5, pb: 1, borderBottom: '2px solid #ccc' }}>
                     <Box sx={{ width: '12px', height: '12px', borderRadius: '50%', bgcolor: '#ccc' }} />
-                    <Typography sx={{ fontWeight: 700, fontSize: '14px', color: '#2d5016' }}>
+                    <Typography sx={{ fontWeight: 500, fontSize: '14px', color: '#2d5016' }}>
                       Uncategorized ({tables.filter(t => !t.category).length})
                     </Typography>
                   </Box>
@@ -1764,7 +1764,7 @@ const Dashboard = () => {
                         >
                           <CardContent sx={{ textAlign: 'center', py: 2, px: 2, flex: 1, display: 'flex', flexDirection: 'column' }}>
                             <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                              <Typography sx={{ fontWeight: 700, fontSize: '18px', color: '#2d5016', mb: 0.5 }}>
+                              <Typography sx={{ fontWeight: 500, fontSize: '18px', color: '#2d5016', mb: 0.5 }}>
                                 Table {table.tableNumber}
                               </Typography>
                               <Typography sx={{ fontSize: '12px', color: '#999', mb: 1.5 }}>
@@ -1896,7 +1896,7 @@ const Dashboard = () => {
             </Select>
           </FormControl>
           <Box sx={{ mb: 2 }}>
-            <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#2d5016', mb: 1 }}>Image</Typography>
+            <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016', mb: 1 }}>Image</Typography>
             <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
               <Button
                 variant={!menuItemImageFile ? 'contained' : 'outlined'}
@@ -2182,7 +2182,7 @@ const Dashboard = () => {
 
       {/* Bulk Status Update Dialog */}
       <Dialog open={bulkStatusDialog} onClose={() => setBulkStatusDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 600, color: '#2d5016' }}>Update Status for {selectedOrders.length} Order(s)</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 500, color: '#2d5016' }}>Update Status for {selectedOrders.length} Order(s)</DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
             <Typography sx={{ mb: 1.5, fontSize: '13px', color: '#666' }}>
@@ -2217,7 +2217,7 @@ const Dashboard = () => {
 
       {/* Clear All Orders Dialog */}
       <Dialog open={clearAllDialog} onClose={() => setClearAllDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 600, color: '#2d5016' }}>Clear All Orders</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 500, color: '#2d5016' }}>Clear All Orders</DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
             <Typography sx={{ mb: 2, fontSize: '14px', color: '#1a1a1a' }}>
@@ -2226,7 +2226,7 @@ const Dashboard = () => {
 
             {orders.some(order => order.status === 'pending') && (
               <Alert severity="warning" sx={{ mb: 2, fontSize: '12px' }}>
-                <Typography sx={{ fontWeight: 600, mb: 0.5 }}>Pending Orders Found:</Typography>
+                <Typography sx={{ fontWeight: 500, mb: 0.5 }}>Pending Orders Found:</Typography>
                 <Box sx={{ pl: 1 }}>
                   {orders.filter(order => order.status === 'pending').map(order => (
                     <Typography key={order._id} sx={{ fontSize: '12px' }}>
@@ -2256,7 +2256,7 @@ const Dashboard = () => {
 
       {/* Order Note Dialog */}
       <Dialog open={noteDialogOpen} onClose={() => setNoteDialogOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 600, color: '#2d5016' }}>Order Note</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 500, color: '#2d5016' }}>Order Note</DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2, p: 2, bgcolor: '#f9f9f9', borderRadius: '6px', minHeight: '100px' }}>
             <Typography sx={{ fontSize: '14px', color: '#1a1a1a', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
@@ -2273,12 +2273,12 @@ const Dashboard = () => {
 
       {/* Edit Order Dialog */}
       <Dialog open={editOrderDialog} onClose={() => setEditOrderDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 600, color: '#2d5016' }}>
+        <DialogTitle sx={{ fontWeight: 500, color: '#2d5016' }}>
           Edit Order #{editingOrder?.orderNumber}
         </DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
-            <Typography sx={{ fontSize: '12px', color: '#666', mb: 1.5, fontWeight: 600 }}>
+            <Typography sx={{ fontSize: '12px', color: '#666', mb: 1.5, fontWeight: 500 }}>
               Current Items:
             </Typography>
             <List sx={{ bgcolor: '#f9f9f9', borderRadius: '6px', mb: 2 }}>
@@ -2326,7 +2326,7 @@ const Dashboard = () => {
             </List>
 
             {/* Add New Item Section */}
-            <Typography sx={{ fontSize: '12px', color: '#666', mb: 1.5, fontWeight: 600 }}>
+            <Typography sx={{ fontSize: '12px', color: '#666', mb: 1.5, fontWeight: 500 }}>
               Add New Item:
             </Typography>
             <Box sx={{ bgcolor: '#f9f9f9', p: 1.5, borderRadius: '6px', mb: 2 }}>
@@ -2369,7 +2369,7 @@ const Dashboard = () => {
             </Box>
 
             <Box sx={{ bgcolor: '#f0f0f0', p: 1.5, borderRadius: '6px', mb: 2 }}>
-              <Typography sx={{ fontSize: '13px', fontWeight: 600, color: '#1a1a1a' }}>
+              <Typography sx={{ fontSize: '13px', fontWeight: 500, color: '#1a1a1a' }}>
                 New Total: ₹{editOrderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)}
               </Typography>
             </Box>

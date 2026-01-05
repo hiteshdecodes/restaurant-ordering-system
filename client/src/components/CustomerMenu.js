@@ -346,10 +346,10 @@ const CustomerMenu = () => {
         {/* Header */}
         <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
           <Box sx={{ textAlign: 'left', flex: 1 }}>
-            <Typography variant="h6" component="h1" sx={{ fontWeight: 700, color: '#2d5016', fontSize: '18px' }}>
+            <Typography variant="h6" component="h1" sx={{ fontWeight: 500, color: '#2d5016', fontSize: '18px' }}>
               Restaurant Menu
             </Typography>
-            <Typography variant="caption" sx={{ color: '#666', fontSize: '12px' }}>
+            <Typography variant="caption" sx={{ color: '#666', fontSize: '12px', fontWeight: 400 }}>
               Table {tableNumber}
             </Typography>
           </Box>
@@ -403,7 +403,8 @@ const CustomerMenu = () => {
                 '& .MuiOutlinedInput-root': {
                   fontSize: '13px',
                   height: '36px',
-                  borderRadius: '6px'
+                  borderRadius: '6px',
+                  fontWeight: 400
                 }
               }}
             />
@@ -479,7 +480,7 @@ const CustomerMenu = () => {
                   '&:hover': { backgroundColor: '#1f3810' },
                 }}
               >
-                <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
+                <Typography sx={{ fontWeight: 500, fontSize: '14px' }}>
                   {categoryData.name}
                 </Typography>
                 {expandedCategories[categoryId] ? <ExpandLessIcon sx={{ fontSize: '20px' }} /> : <ExpandMoreIcon sx={{ fontSize: '20px' }} />}
@@ -544,7 +545,7 @@ const CustomerMenu = () => {
                                   }}
                                 />
                               )}
-                              <Typography sx={{ fontWeight: 600, fontSize: '13px', color: '#1a1a1a' }}>
+                              <Typography sx={{ fontWeight: 500, fontSize: '13px', color: '#1a1a1a' }}>
                                 {item.name}
                               </Typography>
                             </Box>
@@ -557,18 +558,19 @@ const CustomerMenu = () => {
                                   height: '20px',
                                   fontSize: '10px',
                                   bgcolor: '#ffebee',
-                                  color: '#c62828'
+                                  color: '#c62828',
+                                  fontWeight: 400
                                 }}
                               />
                             )}
                           </Box>
 
-                          <Typography sx={{ fontSize: '11px', color: '#999', my: 0.3, lineHeight: 1.3, justifySelf: 'start' }}>
+                          <Typography sx={{ fontSize: '11px', color: '#999', my: 0.3, lineHeight: 1.3, justifySelf: 'start', fontWeight: 400 }}>
                             {item.description}
                           </Typography>
 
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 0.5 }}>
-                            <Typography sx={{ fontWeight: 700, fontSize: '13px', color: '#ff6b35' }}>
+                            <Typography sx={{ fontWeight: 500, fontSize: '13px', color: '#ff6b35' }}>
                               ₹{item.price}
                             </Typography>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -690,20 +692,20 @@ const CustomerMenu = () => {
                   <React.Fragment key={item._id}>
                     <ListItem sx={{ flexDirection: 'column', alignItems: 'flex-start', gap: 0.5, py: 1, px: 0 }}>
                       <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography sx={{ fontWeight: 600, fontSize: '13px' }}>{item.name}</Typography>
-                        <Typography sx={{ color: '#999', fontSize: '12px' }}>₹{item.price} each</Typography>
+                        <Typography sx={{ fontWeight: 500, fontSize: '13px' }}>{item.name}</Typography>
+                        <Typography sx={{ color: '#999', fontSize: '12px', fontWeight: 400 }}>₹{item.price} each</Typography>
                       </Box>
                       <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                           <IconButton size="small" onClick={() => removeFromCart(item._id)} sx={{ p: 0.3 }}>
                             <RemoveIcon sx={{ fontSize: '14px', color: '#ff6b35' }} />
                           </IconButton>
-                          <Typography sx={{ minWidth: 24, textAlign: 'center', fontSize: '12px', fontWeight: 600 }}>{item.quantity}</Typography>
+                          <Typography sx={{ minWidth: 24, textAlign: 'center', fontSize: '12px', fontWeight: 500 }}>{item.quantity}</Typography>
                           <IconButton size="small" onClick={() => addToCart(item)} sx={{ p: 0.3 }}>
                             <AddIcon sx={{ fontSize: '14px', color: '#ff6b35' }} />
                           </IconButton>
                         </Box>
-                        <Typography sx={{ fontWeight: 700, fontSize: '12px', color: '#ff6b35' }}>₹{item.price * item.quantity}</Typography>
+                        <Typography sx={{ fontWeight: 500, fontSize: '12px', color: '#ff6b35' }}>₹{item.price * item.quantity}</Typography>
                       </Box>
                     </ListItem>
                     <Divider sx={{ my: 0.5 }} />
@@ -717,82 +719,28 @@ const CustomerMenu = () => {
             {/* Customer Info Card */}
             {customerData && (
               <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
-                <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#2d5016', mb: 0.8 }}>
+                <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016', mb: 0.8 }}>
                   Order Details
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                  <Typography sx={{ fontSize: '11px', color: '#666' }}>
-                    Name: <strong>{customerData.name}</strong>
+                  <Typography sx={{ fontSize: '11px', color: '#666', fontWeight: 400 }}>
+                    Name: <span style={{ fontWeight: 500 }}>{customerData.name}</span>
                   </Typography>
-                  <Typography sx={{ fontSize: '11px', color: '#666' }}>
-                    Phone: <strong>{customerData.phone}</strong>
+                  <Typography sx={{ fontSize: '11px', color: '#666', fontWeight: 400 }}>
+                    Phone: <span style={{ fontWeight: 500 }}>{customerData.phone}</span>
                   </Typography>
-                  <Typography sx={{ fontSize: '11px', color: '#666' }}>
-                    Table: <strong>{tableNumber}</strong>
+                  <Typography sx={{ fontSize: '11px', color: '#666', fontWeight: 400 }}>
+                    Table: <span style={{ fontWeight: 500 }}>{tableNumber}</span>
                   </Typography>
                 </Box>
               </Box>
             )}
 
-            {/* Shipping Card */}
-            <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
-              <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#2d5016', mb: 0.8 }}>
-                Delivery
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                <Box sx={{ width: '32px', height: '32px', bgcolor: '#f0f0f0', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Typography sx={{ fontSize: '16px' }}>🚚</Typography>
-                </Box>
-                <Box>
-                  <Typography sx={{ fontSize: '11px', color: '#666' }}>
-                    Dine-in at Table {tableNumber}
-                  </Typography>
-                  <Typography sx={{ fontSize: '10px', color: '#999' }}>
-                    Ready in ~30 minutes
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
 
-            {/* Promo Code Card */}
-            <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
-              <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#2d5016', mb: 0.8 }}>
-                Promo Code
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 0.6 }}>
-                <TextField
-                  placeholder="Enter code"
-                  size="small"
-                  sx={{
-                    flex: 1,
-                    fontSize: '12px',
-                    '& .MuiOutlinedInput-root': {
-                      borderRadius: '6px',
-                      height: '32px'
-                    }
-                  }}
-                />
-                <Button
-                  variant="outlined"
-                  size="small"
-                  sx={{
-                    fontSize: '11px',
-                    textTransform: 'none',
-                    borderColor: '#ff6b35',
-                    color: '#ff6b35',
-                    py: 0.5,
-                    px: 1.2,
-                    '&:hover': { bgcolor: '#fff3e0' }
-                  }}
-                >
-                  Apply
-                </Button>
-              </Box>
-            </Box>
 
             {/* Special Instructions Card */}
             <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
-              <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#2d5016', mb: 0.8 }}>
+              <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016', mb: 0.8 }}>
                 Special Instructions
               </Typography>
               <TextField
@@ -806,13 +754,16 @@ const CustomerMenu = () => {
                 helperText={`${orderNote.length}/150 characters`}
                 sx={{
                   fontSize: '12px',
+                  fontWeight: 400,
                   '& .MuiOutlinedInput-root': {
                     borderRadius: '6px',
-                    bgcolor: '#fafafa'
+                    bgcolor: '#fafafa',
+                    fontWeight: 400
                   },
                   '& .MuiFormHelperText-root': {
                     fontSize: '10px',
-                    color: '#999'
+                    color: '#999',
+                    fontWeight: 400
                   }
                 }}
               />
@@ -820,25 +771,21 @@ const CustomerMenu = () => {
 
             {/* Payment Details Card */}
             <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
-              <Typography sx={{ fontSize: '12px', fontWeight: 600, color: '#2d5016', mb: 0.8 }}>
+              <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016', mb: 0.8 }}>
                 Payment Details
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.6 }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#666' }}>
-                  <Typography>Subtotal</Typography>
-                  <Typography>₹{getTotalAmount().toFixed(2)}</Typography>
+                  <Typography sx={{ fontWeight: 400 }}>Subtotal</Typography>
+                  <Typography sx={{ fontWeight: 400 }}>₹{getTotalAmount().toFixed(2)}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#666' }}>
-                  <Typography>Taxes & Charges</Typography>
-                  <Typography>₹0.00</Typography>
+                  <Typography sx={{ fontWeight: 400 }}>Taxes & Charges</Typography>
+                  <Typography sx={{ fontWeight: 400 }}>Included</Typography>
                 </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#666' }}>
-                  <Typography>Delivery Fee</Typography>
-                  <Typography>₹0.00</Typography>
-                </Box>
-                <Box sx={{ borderTop: '1px solid #eee', pt: 0.6, mt: 0.6, display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 600, color: '#2d5016' }}>
-                  <Typography>Total Amount</Typography>
-                  <Typography sx={{ color: '#ff6b35', fontSize: '13px' }}>₹{getTotalAmount().toFixed(2)}</Typography>
+                <Box sx={{ borderTop: '1px solid #eee', pt: 0.6, mt: 0.6, display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 500, color: '#2d5016' }}>
+                  <Typography sx={{ fontWeight: 500 }}>Total Amount</Typography>
+                  <Typography sx={{ color: '#ff6b35', fontSize: '13px', fontWeight: 500 }}>₹{getTotalAmount().toFixed(2)}</Typography>
                 </Box>
               </Box>
             </Box>
