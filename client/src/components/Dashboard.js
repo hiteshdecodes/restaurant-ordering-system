@@ -121,6 +121,11 @@ const Dashboard = () => {
   const [selectedAddItem, setSelectedAddItem] = useState(null);
   const [addItemQuantity, setAddItemQuantity] = useState(1);
   const [editingTableCategory, setEditingTableCategory] = useState(null);
+  const [restaurantData, setRestaurantData] = useState(null);
+  const [restaurantDialog, setRestaurantDialog] = useState(false);
+  const [restaurantLogoFile, setRestaurantLogoFile] = useState(null);
+  const [restaurantLogoPreview, setRestaurantLogoPreview] = useState(null);
+  const [updatingRestaurant, setUpdatingRestaurant] = useState(false);
 
   // Form states
   const [newMenuItem, setNewMenuItem] = useState({
@@ -271,6 +276,7 @@ const Dashboard = () => {
     fetchMenuItems();
     fetchTables();
     fetchTableCategories();
+    fetchRestaurantData();
     calculateStats();
 
     return () => newSocket.close();
@@ -318,6 +324,15 @@ const Dashboard = () => {
       setTables(response.data);
     } catch (error) {
       console.error('Error fetching tables:', error);
+    }
+  };
+
+  const fetchRestaurantData = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/restaurant`);
+      setRestaurantData(response.data);
+    } catch (error) {
+      console.error('Error fetching restaurant data:', error);
     }
   };
 
@@ -931,6 +946,7 @@ const Dashboard = () => {
           <Tab label="Categories" />
           <Tab label="Table Categories" />
           <Tab label="Tables" />
+          <Tab label="Settings" />
         </Tabs>
       </Box>
 
@@ -1836,6 +1852,128 @@ const Dashboard = () => {
         </Box>
       )}
 
+      {/* Settings Tab */}
+      {activeTab === 6 && (
+        <Box>
+          <Box sx={{ mb: 2 }}>
+            <Button
+              variant="contained"
+              onClick={() => setRestaurantDialog(true)}
+              sx={{
+                bgcolor: '#ff6b35',
+                color: 'white',
+                fontSize: '12px',
+                py: 0.6,
+                px: 1.5,
+                textTransform: 'none',
+                '&:hover': { bgcolor: '#e55a24' }
+              }}
+              startIcon={<EditIcon sx={{ fontSize: '16px' }} />}
+            >
+              Edit Restaurant Info
+            </Button>
+          </Box>
+
+          {restaurantData && (
+            <Card sx={{ borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <CardContent>
+                <Typography sx={{ fontWeight: 500, fontSize: '16px', mb: 2, color: '#2d5016' }}>
+                  Restaurant Information
+                </Typography>
+
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                  {restaurantData.logo && (
+                    <Box sx={{ gridColumn: { xs: '1 / -1', sm: 'auto' } }}>
+                      <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#666', mb: 1 }}>
+                        Logo
+                      </Typography>
+                      <Box
+                        component="img"
+                        src={restaurantData.logo}
+                        alt="Restaurant Logo"
+                        sx={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px' }}
+                      />
+                    </Box>
+                  )}
+
+                  <Box>
+                    <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#666', mb: 0.5 }}>
+                      Name
+                    </Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#333' }}>
+                      {restaurantData.name || 'Not set'}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#666', mb: 0.5 }}>
+                      Email
+                    </Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#333' }}>
+                      {restaurantData.email || 'Not set'}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#666', mb: 0.5 }}>
+                      Phone
+                    </Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#333' }}>
+                      {restaurantData.phone || 'Not set'}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#666', mb: 0.5 }}>
+                      Address
+                    </Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#333' }}>
+                      {restaurantData.address || 'Not set'}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#666', mb: 0.5 }}>
+                      City
+                    </Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#333' }}>
+                      {restaurantData.city || 'Not set'}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#666', mb: 0.5 }}>
+                      Postal Code
+                    </Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#333' }}>
+                      {restaurantData.postalCode || 'Not set'}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#666', mb: 0.5 }}>
+                      Country
+                    </Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#333' }}>
+                      {restaurantData.country || 'Not set'}
+                    </Typography>
+                  </Box>
+
+                  <Box>
+                    <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#666', mb: 0.5 }}>
+                      Cuisine Type
+                    </Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#333' }}>
+                      {restaurantData.cuisineType || 'Not set'}
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          )}
+        </Box>
+      )}
+
       {/* Add Menu Item Dialog */}
       <Dialog open={menuItemDialog} onClose={() => {
         setMenuItemDialog(false);
@@ -2429,6 +2567,160 @@ const Dashboard = () => {
           )}
         </Alert>
       </Snackbar>
+
+      {/* Restaurant Settings Dialog */}
+      <Dialog open={restaurantDialog} onClose={() => setRestaurantDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 500, color: '#2d5016' }}>Edit Restaurant Information</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            {/* Logo Upload */}
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#666', mb: 1 }}>
+                Restaurant Logo
+              </Typography>
+              {restaurantLogoPreview && (
+                <Box
+                  component="img"
+                  src={restaurantLogoPreview}
+                  alt="Logo Preview"
+                  sx={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', mb: 1 }}
+                />
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  if (file) {
+                    setRestaurantLogoFile(file);
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setRestaurantLogoPreview(reader.result);
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                style={{ display: 'block', marginBottom: '16px' }}
+              />
+            </Box>
+
+            {/* Restaurant Name */}
+            <TextField
+              fullWidth
+              label="Restaurant Name"
+              value={restaurantData?.name || ''}
+              onChange={(e) => setRestaurantData({...restaurantData, name: e.target.value})}
+              sx={{ mb: 2 }}
+            />
+
+            {/* Email */}
+            <TextField
+              fullWidth
+              label="Email"
+              type="email"
+              value={restaurantData?.email || ''}
+              onChange={(e) => setRestaurantData({...restaurantData, email: e.target.value})}
+              sx={{ mb: 2 }}
+            />
+
+            {/* Phone */}
+            <TextField
+              fullWidth
+              label="Phone"
+              value={restaurantData?.phone || ''}
+              onChange={(e) => setRestaurantData({...restaurantData, phone: e.target.value})}
+              sx={{ mb: 2 }}
+            />
+
+            {/* Address */}
+            <TextField
+              fullWidth
+              label="Address"
+              value={restaurantData?.address || ''}
+              onChange={(e) => setRestaurantData({...restaurantData, address: e.target.value})}
+              sx={{ mb: 2 }}
+            />
+
+            {/* City */}
+            <TextField
+              fullWidth
+              label="City"
+              value={restaurantData?.city || ''}
+              onChange={(e) => setRestaurantData({...restaurantData, city: e.target.value})}
+              sx={{ mb: 2 }}
+            />
+
+            {/* Postal Code */}
+            <TextField
+              fullWidth
+              label="Postal Code"
+              value={restaurantData?.postalCode || ''}
+              onChange={(e) => setRestaurantData({...restaurantData, postalCode: e.target.value})}
+              sx={{ mb: 2 }}
+            />
+
+            {/* Country */}
+            <TextField
+              fullWidth
+              label="Country"
+              value={restaurantData?.country || ''}
+              onChange={(e) => setRestaurantData({...restaurantData, country: e.target.value})}
+              sx={{ mb: 2 }}
+            />
+
+            {/* Cuisine Type */}
+            <TextField
+              fullWidth
+              label="Cuisine Type"
+              value={restaurantData?.cuisineType || ''}
+              onChange={(e) => setRestaurantData({...restaurantData, cuisineType: e.target.value})}
+              sx={{ mb: 2 }}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setRestaurantDialog(false)}>Cancel</Button>
+          <Button
+            onClick={async () => {
+              try {
+                setUpdatingRestaurant(true);
+                const formData = new FormData();
+                formData.append('name', restaurantData?.name || '');
+                formData.append('email', restaurantData?.email || '');
+                formData.append('phone', restaurantData?.phone || '');
+                formData.append('address', restaurantData?.address || '');
+                formData.append('city', restaurantData?.city || '');
+                formData.append('postalCode', restaurantData?.postalCode || '');
+                formData.append('country', restaurantData?.country || '');
+                formData.append('cuisineType', restaurantData?.cuisineType || '');
+
+                if (restaurantLogoFile) {
+                  formData.append('logo', restaurantLogoFile);
+                }
+
+                await axios.put(`${API_BASE}/restaurant`, formData, {
+                  headers: { 'Content-Type': 'multipart/form-data' }
+                });
+
+                setRestaurantDialog(false);
+                setRestaurantLogoFile(null);
+                setRestaurantLogoPreview(null);
+                fetchRestaurantData();
+              } catch (error) {
+                console.error('Error updating restaurant:', error);
+                alert('Error: ' + (error.response?.data?.message || error.message));
+              } finally {
+                setUpdatingRestaurant(false);
+              }
+            }}
+            variant="contained"
+            sx={{ bgcolor: '#ff6b35', '&:hover': { bgcolor: '#e55a24' } }}
+            disabled={updatingRestaurant}
+          >
+            {updatingRestaurant ? 'Saving...' : 'Save'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

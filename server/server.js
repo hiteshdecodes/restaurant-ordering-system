@@ -131,6 +131,7 @@ app.set('io', io);
 
 // API Routes - MUST be before static files and SPA routing
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/restaurant', require('./routes/restaurant'));
 app.use('/api/categories', require('./routes/categories'));
 app.use('/api/menu-items', require('./routes/menuItems'));
 app.use('/api/table-categories', require('./routes/tableCategories'));
