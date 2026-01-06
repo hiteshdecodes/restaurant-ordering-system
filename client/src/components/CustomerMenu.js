@@ -679,75 +679,95 @@ const CustomerMenu = () => {
             )}
           </Box>
 
-
-
-          <Box sx={{ flex: 1, overflowY: 'auto', p: 1.2 }}>
+          {/* Main scrollable content - merged into one */}
+          <Box sx={{ flex: 1, overflowY: 'auto', p: 1.2, pb: 0 }}>
             {cart.length === 0 ? (
               <Box sx={{ textAlign: 'center', py: 3, color: '#999' }}>
                 <Typography sx={{ fontSize: '13px' }}>Your cart is empty</Typography>
               </Box>
             ) : (
-              <List sx={{ width: '100%', p: 0 }}>
-                {cart.map((item) => (
-                  <React.Fragment key={item._id}>
-                    <ListItem sx={{ flexDirection: 'column', alignItems: 'flex-start', gap: 0.5, py: 1, px: 0 }}>
-                      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography sx={{ fontWeight: 500, fontSize: '13px' }}>{item.name}</Typography>
-                        <Typography sx={{ color: '#999', fontSize: '12px', fontWeight: 400 }}>₹{item.price} each</Typography>
-                      </Box>
-                      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <IconButton size="small" onClick={() => removeFromCart(item._id)} sx={{ p: 0.3 }}>
-                            <RemoveIcon sx={{ fontSize: '14px', color: '#ff6b35' }} />
-                          </IconButton>
-                          <Typography sx={{ minWidth: 24, textAlign: 'center', fontSize: '12px', fontWeight: 500 }}>{item.quantity}</Typography>
-                          <IconButton size="small" onClick={() => addToCart(item)} sx={{ p: 0.3 }}>
-                            <AddIcon sx={{ fontSize: '14px', color: '#ff6b35' }} />
-                          </IconButton>
+              <>
+                {/* Cart Items */}
+                <List sx={{ width: '100%', p: 0, mb: 1.2 }}>
+                  {cart.map((item) => (
+                    <React.Fragment key={item._id}>
+                      <ListItem sx={{ flexDirection: 'column', alignItems: 'flex-start', gap: 0.5, py: 1, px: 0 }}>
+                        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography sx={{ fontWeight: 500, fontSize: '13px' }}>{item.name}</Typography>
+                          <Typography sx={{ color: '#999', fontSize: '12px', fontWeight: 400 }}>₹{item.price} each</Typography>
                         </Box>
-                        <Typography sx={{ fontWeight: 500, fontSize: '12px', color: '#ff6b35' }}>₹{item.price * item.quantity}</Typography>
-                      </Box>
-                    </ListItem>
-                    <Divider sx={{ my: 0.5 }} />
-                  </React.Fragment>
-                ))}
-              </List>
+                        <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <IconButton size="small" onClick={() => removeFromCart(item._id)} sx={{ p: 0.3 }}>
+                              <RemoveIcon sx={{ fontSize: '14px', color: '#ff6b35' }} />
+                            </IconButton>
+                            <Typography sx={{ minWidth: 24, textAlign: 'center', fontSize: '12px', fontWeight: 500 }}>{item.quantity}</Typography>
+                            <IconButton size="small" onClick={() => addToCart(item)} sx={{ p: 0.3 }}>
+                              <AddIcon sx={{ fontSize: '14px', color: '#ff6b35' }} />
+                            </IconButton>
+                          </Box>
+                          <Typography sx={{ fontWeight: 500, fontSize: '12px', color: '#ff6b35' }}>₹{item.price * item.quantity}</Typography>
+                        </Box>
+                      </ListItem>
+                      <Divider sx={{ my: 0.5 }} />
+                    </React.Fragment>
+                  ))}
+                </List>
+
+                {/* Customer Info Card */}
+                {customerData && (
+                  <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
+                    <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016', mb: 0.8 }}>
+                      Order Details
+                    </Typography>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                      <Typography sx={{ fontSize: '11px', color: '#666', fontWeight: 400 }}>
+                        Name: <span style={{ fontWeight: 500 }}>{customerData.name}</span>
+                      </Typography>
+                      <Typography sx={{ fontSize: '11px', color: '#666', fontWeight: 400 }}>
+                        Phone: <span style={{ fontWeight: 500 }}>{customerData.phone}</span>
+                      </Typography>
+                      <Typography sx={{ fontSize: '11px', color: '#666', fontWeight: 400 }}>
+                        Table: <span style={{ fontWeight: 500 }}>{tableNumber}</span>
+                      </Typography>
+                    </Box>
+                  </Box>
+                )}
+
+                {/* Payment Details Card */}
+                <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
+                  <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016', mb: 0.8 }}>
+                    Payment Details
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.6 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#666' }}>
+                      <Typography sx={{ fontWeight: 400 }}>Subtotal</Typography>
+                      <Typography sx={{ fontWeight: 400 }}>₹{getTotalAmount().toFixed(2)}</Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#666' }}>
+                      <Typography sx={{ fontWeight: 400 }}>Taxes & Charges</Typography>
+                      <Typography sx={{ fontWeight: 400 }}>Included</Typography>
+                    </Box>
+                    <Box sx={{ borderTop: '1px solid #eee', pt: 0.6, mt: 0.6, display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 500, color: '#2d5016' }}>
+                      <Typography sx={{ fontWeight: 500 }}>Total Amount</Typography>
+                      <Typography sx={{ color: '#ff6b35', fontSize: '13px', fontWeight: 500 }}>₹{getTotalAmount().toFixed(2)}</Typography>
+                    </Box>
+                  </Box>
+                </Box>
+              </>
             )}
           </Box>
 
-          <Box sx={{ p: 1.2, borderTop: '1px solid #eee', bgcolor: '#fafafa', overflowY: 'auto' }}>
-            {/* Customer Info Card */}
-            {customerData && (
-              <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
-                <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016', mb: 0.8 }}>
-                  Order Details
-                </Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                  <Typography sx={{ fontSize: '11px', color: '#666', fontWeight: 400 }}>
-                    Name: <span style={{ fontWeight: 500 }}>{customerData.name}</span>
-                  </Typography>
-                  <Typography sx={{ fontSize: '11px', color: '#666', fontWeight: 400 }}>
-                    Phone: <span style={{ fontWeight: 500 }}>{customerData.phone}</span>
-                  </Typography>
-                  <Typography sx={{ fontSize: '11px', color: '#666', fontWeight: 400 }}>
-                    Table: <span style={{ fontWeight: 500 }}>{tableNumber}</span>
-                  </Typography>
-                </Box>
-              </Box>
-            )}
-
-
-
-            {/* Special Instructions Card */}
+          {/* Fixed bottom section - Special Instructions and Action Button */}
+          <Box sx={{ p: 1.2, borderTop: '1px solid #eee', bgcolor: '#fafafa', flexShrink: 0 }}>
+            {/* Special Instructions - One liner */}
             <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
               <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016', mb: 0.8 }}>
                 Special Instructions
               </Typography>
               <TextField
                 fullWidth
-                multiline
-                rows={2}
-                placeholder="Add special instructions or notes (optional)"
+                placeholder="Add special instructions (optional)"
                 value={orderNote}
                 onChange={(e) => setOrderNote(e.target.value.slice(0, 150))}
                 size="small"
@@ -769,55 +789,26 @@ const CustomerMenu = () => {
               />
             </Box>
 
-            {/* Payment Details Card */}
-            <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
-              <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016', mb: 0.8 }}>
-                Payment Details
-              </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.6 }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#666' }}>
-                  <Typography sx={{ fontWeight: 400 }}>Subtotal</Typography>
-                  <Typography sx={{ fontWeight: 400 }}>₹{getTotalAmount().toFixed(2)}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#666' }}>
-                  <Typography sx={{ fontWeight: 400 }}>Taxes & Charges</Typography>
-                  <Typography sx={{ fontWeight: 400 }}>Included</Typography>
-                </Box>
-                <Box sx={{ borderTop: '1px solid #eee', pt: 0.6, mt: 0.6, display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 500, color: '#2d5016' }}>
-                  <Typography sx={{ fontWeight: 500 }}>Total Amount</Typography>
-                  <Typography sx={{ color: '#ff6b35', fontSize: '13px', fontWeight: 500 }}>₹{getTotalAmount().toFixed(2)}</Typography>
-                </Box>
+            {/* Action Button - Total Amount + Place Order */}
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <Box sx={{ flex: 0.4, textAlign: 'center' }}>
+                <Typography sx={{ fontSize: '11px', color: '#666', fontWeight: 400, mb: 0.3 }}>Total</Typography>
+                <Typography sx={{ fontSize: '16px', fontWeight: 500, color: '#ff6b35' }}>
+                  ₹{getTotalAmount().toFixed(2)}
+                </Typography>
               </Box>
-            </Box>
-
-            {/* Action Buttons */}
-            <Box sx={{ display: 'flex', gap: 0.8 }}>
-              <Button
-                fullWidth
-                variant="outlined"
-                onClick={() => setCartOpen(false)}
-                sx={{
-                  fontSize: '12px',
-                  py: 0.8,
-                  textTransform: 'none',
-                  borderColor: '#ddd',
-                  color: '#666',
-                  '&:hover': { borderColor: '#999', bgcolor: '#f5f5f5' }
-                }}
-              >
-                Continue Shopping
-              </Button>
               <Button
                 fullWidth
                 variant="contained"
                 onClick={handlePlaceOrder}
                 disabled={cart.length === 0}
                 sx={{
-                  fontSize: '12px',
-                  py: 0.8,
+                  fontSize: '13px',
+                  py: 1,
                   textTransform: 'none',
                   bgcolor: '#ff6b35',
                   color: 'white',
+                  fontWeight: 500,
                   '&:hover': { bgcolor: '#e55a24' }
                 }}
               >
