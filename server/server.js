@@ -115,12 +115,18 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/restauran
 // Socket.io connection handling
 io.on('connection', (socket) => {
   console.log('Client connected:', socket.id);
-  
+
   socket.on('join-dashboard', () => {
     socket.join('dashboard');
     console.log('Client joined dashboard room');
   });
-  
+
+  // Handle restaurant updates from dashboard and broadcast to all clients
+  socket.on('restaurant-updated', (restaurantData) => {
+    console.log('Restaurant updated, broadcasting to all clients:', restaurantData);
+    io.emit('restaurant-updated', restaurantData);
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);
   });

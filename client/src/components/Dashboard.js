@@ -2759,7 +2759,7 @@ const Dashboard = () => {
                   formData.append('logo', restaurantLogoFile);
                 }
 
-                await axios.put(`${API_BASE}/restaurant`, formData, {
+                const response = await axios.put(`${API_BASE}/restaurant`, formData, {
                   headers: { 'Content-Type': 'multipart/form-data' }
                 });
 
@@ -2770,7 +2770,7 @@ const Dashboard = () => {
 
                 // Emit socket event to update all connected clients (customer menu)
                 if (socket) {
-                  socket.emit('restaurant-updated', restaurantData);
+                  socket.emit('restaurant-updated', response.data);
                 }
               } catch (error) {
                 console.error('Error updating restaurant:', error);
