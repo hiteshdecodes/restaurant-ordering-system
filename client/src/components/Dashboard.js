@@ -2676,6 +2676,65 @@ const Dashboard = () => {
               onChange={(e) => setRestaurantData({...restaurantData, cuisineType: e.target.value})}
               sx={{ mb: 2 }}
             />
+
+            {/* Color Theme Section */}
+            <Typography sx={{ fontWeight: 500, fontSize: '14px', color: '#2d5016', mb: 2, mt: 3 }}>
+              Theme Colors
+            </Typography>
+
+            {/* Primary Color */}
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#666', mb: 1 }}>
+                Primary Color (Buttons, Accents)
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <input
+                  type="color"
+                  value={restaurantData?.primaryColor || '#ff6b35'}
+                  onChange={(e) => setRestaurantData({...restaurantData, primaryColor: e.target.value})}
+                  style={{
+                    width: '50px',
+                    height: '40px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                />
+                <TextField
+                  size="small"
+                  value={restaurantData?.primaryColor || '#ff6b35'}
+                  onChange={(e) => setRestaurantData({...restaurantData, primaryColor: e.target.value})}
+                  sx={{ flex: 1 }}
+                />
+              </Box>
+            </Box>
+
+            {/* Secondary Color */}
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#666', mb: 1 }}>
+                Secondary Color (Headings, Text)
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                <input
+                  type="color"
+                  value={restaurantData?.secondaryColor || '#2d5016'}
+                  onChange={(e) => setRestaurantData({...restaurantData, secondaryColor: e.target.value})}
+                  style={{
+                    width: '50px',
+                    height: '40px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                />
+                <TextField
+                  size="small"
+                  value={restaurantData?.secondaryColor || '#2d5016'}
+                  onChange={(e) => setRestaurantData({...restaurantData, secondaryColor: e.target.value})}
+                  sx={{ flex: 1 }}
+                />
+              </Box>
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions>
@@ -2693,6 +2752,8 @@ const Dashboard = () => {
                 formData.append('postalCode', restaurantData?.postalCode || '');
                 formData.append('country', restaurantData?.country || '');
                 formData.append('cuisineType', restaurantData?.cuisineType || '');
+                formData.append('primaryColor', restaurantData?.primaryColor || '#ff6b35');
+                formData.append('secondaryColor', restaurantData?.secondaryColor || '#2d5016');
 
                 if (restaurantLogoFile) {
                   formData.append('logo', restaurantLogoFile);
@@ -2706,6 +2767,11 @@ const Dashboard = () => {
                 setRestaurantLogoFile(null);
                 setRestaurantLogoPreview(null);
                 fetchRestaurantData();
+
+                // Emit socket event to update all connected clients (customer menu)
+                if (socket) {
+                  socket.emit('restaurant-updated', restaurantData);
+                }
               } catch (error) {
                 console.error('Error updating restaurant:', error);
                 alert('Error: ' + (error.response?.data?.message || error.message));

@@ -8,6 +8,7 @@ import Home from './components/Home';
 import TableOrders from './components/TableOrders';
 import { NotificationProvider } from './context/NotificationContext';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider as CustomThemeProvider } from './context/ThemeContext';
 import './App.css';
 
 const theme = createTheme({
@@ -37,19 +38,21 @@ function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Router>
-            <div className="App">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/menu" element={<CustomerMenu />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/table-orders" element={<TableOrders />} />
-              </Routes>
-            </div>
-          </Router>
-        </ThemeProvider>
+        <CustomThemeProvider>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Router>
+              <div className="App">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/menu" element={<CustomerMenu />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/table-orders" element={<TableOrders />} />
+                </Routes>
+              </div>
+            </Router>
+          </ThemeProvider>
+        </CustomThemeProvider>
       </NotificationProvider>
     </AuthProvider>
   );
