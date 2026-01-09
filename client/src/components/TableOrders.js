@@ -55,7 +55,7 @@ const TableOrders = () => {
     fetchAllOrders();
 
     // Connect to Socket.io (use current domain)
-    const newSocket = io();
+    const newSocket = io('https://restaurant-ordering-system-5jxm.onrender.com');
     setSocket(newSocket);
 
     // Listen for new orders
@@ -125,9 +125,9 @@ const TableOrders = () => {
   const fetchTables = async () => {
     try {
       const [tablesRes, categoriesRes, menuRes] = await Promise.all([
-        axios.get('/api/tables'),
-        axios.get('/api/table-categories'),
-        axios.get('/api/menu-items')
+        axios.get('https://restaurant-ordering-system-5jxm.onrender.com/api/tables'),
+        axios.get('https://restaurant-ordering-system-5jxm.onrender.com/api/table-categories'),
+        axios.get('https://restaurant-ordering-system-5jxm.onrender.com/api/menu-items')
       ]);
       setTables(tablesRes.data);
       setTableCategories(categoriesRes.data);
@@ -139,7 +139,7 @@ const TableOrders = () => {
 
   const fetchAllOrders = async () => {
     try {
-      const response = await axios.get('/api/orders');
+      const response = await axios.get('https://restaurant-ordering-system-5jxm.onrender.com/api/orders');
       const ordersGrouped = {};
       response.data.forEach(order => {
         if (!ordersGrouped[order.tableNumber]) {

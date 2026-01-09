@@ -63,12 +63,15 @@ import io from 'socket.io-client';
 import NotificationCenter from './NotificationCenter';
 import CustomCheckbox from './CustomCheckbox';
 import LoadingAnimation from './LoadingAnimation';
+import DashboardLogin from './DashboardLogin';
 import vegIcon from '../veg icon.png';
 import nonVegIcon from '../non veg.png';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [dashboardUser, setDashboardUser] = useState(null);
 
   const [activeTab, setActiveTab] = useState(0);
   const [orders, setOrders] = useState([]);
@@ -104,6 +107,10 @@ const Dashboard = () => {
   // Logout handler
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to logout?')) {
+      localStorage.removeItem('dashboardToken');
+      localStorage.removeItem('dashboardUser');
+      setIsLoggedIn(false);
+      setDashboardUser(null);
       logout();
       navigate('/');
     }
@@ -125,6 +132,8 @@ const Dashboard = () => {
   const [restaurantDialog, setRestaurantDialog] = useState(false);
   const [restaurantLogoFile, setRestaurantLogoFile] = useState(null);
   const [restaurantLogoPreview, setRestaurantLogoPreview] = useState(null);
+  const [restaurantLogoUrl, setRestaurantLogoUrl] = useState('');
+  const [showLogoUrlInput, setShowLogoUrlInput] = useState(false);
   const [updatingRestaurant, setUpdatingRestaurant] = useState(false);
 
   // Form states
@@ -139,6 +148,8 @@ const Dashboard = () => {
   });
 
   const [menuItemImageFile, setMenuItemImageFile] = useState(null);
+  const [menuItemImageUrl, setMenuItemImageUrl] = useState('');
+  const [showMenuImageUrlInput, setShowMenuImageUrlInput] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   
   const [newCategory, setNewCategory] = useState({
@@ -160,7 +171,7 @@ const Dashboard = () => {
     icon: 'category'
   });
 
-  const API_BASE = '/api';
+  const API_BASE = 'https://restaurant-ordering-system-5jxm.onrender.com/api';
 
   // Enhanced notification sound function
   const playNotificationSound = () => {
@@ -223,12 +234,29 @@ const Dashboard = () => {
     }
   };
 
+  // Check if user is logged in
+  useEffect(() => {
+    const token = localStorage.getItem('dashboardToken');
+    const user = localStorage.getItem('dashboardUser');
+
+    if (token && user) {
+      setIsLoggedIn(true);
+      setDashboardUser(JSON.parse(user));
+    }
+  }, []);
+
   useEffect(() => {
     // Initialize socket connection (use current domain)
-    const newSocket = io();
+    console.log('🔌 Dashboard: Initializing socket connection...');
+    const newSocket = io('https://restaurant-ordering-system-5jxm.onrender.com');
     setSocket(newSocket);
 
+    newSocket.on('connect', () => {
+      console.log('✅ Dashboard: Socket connected with ID:', newSocket.id);
+    });
+
     // Join dashboard room for real-time updates
+    console.log('📊 Dashboard: Emitting join-dashboard event');
     newSocket.emit('join-dashboard');
 
     // Listen for real-time order updates
@@ -270,6 +298,10 @@ const Dashboard = () => {
       calculateStats();
     });
 
+    newSocket.on('disconnect', () => {
+      console.log('❌ Dashboard: Socket disconnected');
+    });
+
     // Fetch initial data
     fetchOrders(true);
     fetchCategories();
@@ -279,7 +311,10 @@ const Dashboard = () => {
     fetchRestaurantData();
     calculateStats();
 
-    return () => newSocket.close();
+    return () => {
+      console.log('🔌 Dashboard: Closing socket connection');
+      newSocket.close();
+    };
   }, []);
 
   const fetchOrders = async (isInitial = false) => {
@@ -481,6 +516,8 @@ const Dashboard = () => {
       // Add image file if selected, otherwise add URL
       if (menuItemImageFile) {
         formData.append('imageFile', menuItemImageFile);
+      } else if (menuItemImageUrl) {
+        formData.append('image', menuItemImageUrl);
       } else if (newMenuItem.image) {
         formData.append('image', newMenuItem.image);
       }
@@ -499,6 +536,8 @@ const Dashboard = () => {
       setMenuItemDialog(false);
       setEditingItem(null);
       setMenuItemImageFile(null);
+      setMenuItemImageUrl('');
+      setShowMenuImageUrlInput(false);
       setImagePreview(null);
       setNewMenuItem({
         name: '',
@@ -527,6 +566,8 @@ const Dashboard = () => {
       isSpicy: item.isSpicy
     });
     setMenuItemImageFile(null);
+    setMenuItemImageUrl('');
+    setShowMenuImageUrlInput(false);
     // Set image preview to the existing image URL
     if (item.image) {
       setImagePreview(item.image.startsWith('http') ? item.image : item.image);
@@ -782,6 +823,14 @@ const Dashboard = () => {
     }
   };
 
+  // Show login if not authenticated
+  if (!isLoggedIn) {
+    return <DashboardLogin onLoginSuccess={(user) => {
+      setDashboardUser(user);
+      setIsLoggedIn(true);
+    }} />;
+  }
+
   return (
     <Container maxWidth="xl" sx={{ mt: 1.5, mb: 3, px: 1 }}>
       {/* Header */}
@@ -811,6 +860,11 @@ const Dashboard = () => {
           >
             Test Sound
           </Button>
+          {dashboardUser && (
+            <Typography sx={{ fontSize: '12px', color: '#666', mr: 1 }}>
+              👤 {dashboardUser.username} ({dashboardUser.role})
+            </Typography>
+          )}
           <Button
             variant="contained"
             startIcon={<LogoutIcon sx={{ fontSize: '16px' }} />}
@@ -1979,6 +2033,8 @@ const Dashboard = () => {
         setMenuItemDialog(false);
         setEditingItem(null);
         setMenuItemImageFile(null);
+        setMenuItemImageUrl('');
+        setShowMenuImageUrlInput(false);
         setImagePreview(null);
         setNewMenuItem({
           name: '',
@@ -2037,23 +2093,20 @@ const Dashboard = () => {
             <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016', mb: 1 }}>Image</Typography>
             <Box sx={{ display: 'flex', gap: 1, mb: 1.5 }}>
               <Button
-                variant={!menuItemImageFile ? 'contained' : 'outlined'}
-                onClick={() => {
-                  setMenuItemImageFile(null);
-                  setImagePreview(null);
-                }}
+                variant={menuItemImageUrl ? 'contained' : 'outlined'}
+                onClick={() => setShowMenuImageUrlInput(!showMenuImageUrlInput)}
                 sx={{
                   flex: 1,
-                  bgcolor: !menuItemImageFile ? '#ff6b35' : 'transparent',
-                  color: !menuItemImageFile ? 'white' : '#ff6b35',
+                  bgcolor: menuItemImageUrl ? '#ff6b35' : 'transparent',
+                  color: menuItemImageUrl ? 'white' : '#ff6b35',
                   fontSize: '11px',
                   py: 0.6,
                   textTransform: 'none',
                   border: '1px solid #ff6b35',
-                  '&:hover': { bgcolor: !menuItemImageFile ? '#e55a24' : '#fff5f0' }
+                  '&:hover': { bgcolor: menuItemImageUrl ? '#e55a24' : '#fff5f0' }
                 }}
               >
-                URL
+                Link
               </Button>
               <Button
                 variant={menuItemImageFile ? 'contained' : 'outlined'}
@@ -2080,6 +2133,7 @@ const Dashboard = () => {
                   const file = e.target.files[0];
                   if (file) {
                     setMenuItemImageFile(file);
+                    setMenuItemImageUrl('');
                     const reader = new FileReader();
                     reader.onloadend = () => {
                       setImagePreview(reader.result);
@@ -2089,6 +2143,24 @@ const Dashboard = () => {
                 }}
               />
             </Box>
+
+            {/* URL Input for Menu Item Image */}
+            {showMenuImageUrlInput && (
+              <TextField
+                fullWidth
+                label="Image URL"
+                placeholder="https://example.com/image.jpg"
+                value={menuItemImageUrl || ''}
+                onChange={(e) => {
+                  setMenuItemImageUrl(e.target.value);
+                  setMenuItemImageFile(null);
+                  if (e.target.value) {
+                    setImagePreview(e.target.value);
+                  }
+                }}
+                sx={{ mb: 2 }}
+              />
+            )}
 
             {menuItemImageFile ? (
               <Box>
@@ -2165,6 +2237,8 @@ const Dashboard = () => {
             setMenuItemDialog(false);
             setEditingItem(null);
             setMenuItemImageFile(null);
+            setMenuItemImageUrl('');
+            setShowMenuImageUrlInput(false);
             setImagePreview(null);
             setNewMenuItem({
               name: '',
@@ -2573,7 +2647,7 @@ const Dashboard = () => {
         <DialogTitle sx={{ fontWeight: 500, color: '#2d5016' }}>Edit Restaurant Information</DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
-            {/* Logo Upload */}
+            {/* Logo Upload/Link */}
             <Box sx={{ mb: 2 }}>
               <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#666', mb: 1 }}>
                 Restaurant Logo
@@ -2586,13 +2660,53 @@ const Dashboard = () => {
                   sx={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', mb: 1 }}
                 />
               )}
+
+              {/* Logo Input Tabs */}
+              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                <Button
+                  variant={!restaurantLogoFile && !restaurantLogoUrl ? 'contained' : 'outlined'}
+                  onClick={() => document.getElementById('logoFileInput').click()}
+                  sx={{
+                    flex: 1,
+                    bgcolor: restaurantLogoFile ? '#ff6b35' : 'transparent',
+                    color: restaurantLogoFile ? 'white' : '#ff6b35',
+                    fontSize: '11px',
+                    py: 0.6,
+                    textTransform: 'none',
+                    border: '1px solid #ff6b35',
+                    '&:hover': { bgcolor: restaurantLogoFile ? '#e55a24' : '#fff5f0' }
+                  }}
+                >
+                  Upload
+                </Button>
+                <Button
+                  variant={restaurantLogoUrl ? 'contained' : 'outlined'}
+                  onClick={() => setShowLogoUrlInput(!showLogoUrlInput)}
+                  sx={{
+                    flex: 1,
+                    bgcolor: restaurantLogoUrl ? '#ff6b35' : 'transparent',
+                    color: restaurantLogoUrl ? 'white' : '#ff6b35',
+                    fontSize: '11px',
+                    py: 0.6,
+                    textTransform: 'none',
+                    border: '1px solid #ff6b35',
+                    '&:hover': { bgcolor: restaurantLogoUrl ? '#e55a24' : '#fff5f0' }
+                  }}
+                >
+                  Link
+                </Button>
+              </Box>
+
+              {/* File Upload Input */}
               <input
+                id="logoFileInput"
                 type="file"
                 accept="image/*"
                 onChange={(e) => {
                   const file = e.target.files[0];
                   if (file) {
                     setRestaurantLogoFile(file);
+                    setRestaurantLogoUrl('');
                     const reader = new FileReader();
                     reader.onloadend = () => {
                       setRestaurantLogoPreview(reader.result);
@@ -2600,8 +2714,26 @@ const Dashboard = () => {
                     reader.readAsDataURL(file);
                   }
                 }}
-                style={{ display: 'block', marginBottom: '16px' }}
+                style={{ display: 'none' }}
               />
+
+              {/* URL Input */}
+              {showLogoUrlInput && (
+                <TextField
+                  fullWidth
+                  label="Logo URL"
+                  placeholder="https://example.com/logo.png"
+                  value={restaurantLogoUrl || ''}
+                  onChange={(e) => {
+                    setRestaurantLogoUrl(e.target.value);
+                    setRestaurantLogoFile(null);
+                    if (e.target.value) {
+                      setRestaurantLogoPreview(e.target.value);
+                    }
+                  }}
+                  sx={{ mb: 2 }}
+                />
+              )}
             </Box>
 
             {/* Restaurant Name */}
@@ -2757,20 +2889,29 @@ const Dashboard = () => {
 
                 if (restaurantLogoFile) {
                   formData.append('logo', restaurantLogoFile);
+                } else if (restaurantLogoUrl) {
+                  formData.append('logoUrl', restaurantLogoUrl);
                 }
 
+                console.log('📤 Dashboard: Sending restaurant update to server...');
                 const response = await axios.put(`${API_BASE}/restaurant`, formData, {
                   headers: { 'Content-Type': 'multipart/form-data' }
                 });
 
+                console.log('✅ Dashboard: Restaurant updated on server:', response.data);
                 setRestaurantDialog(false);
                 setRestaurantLogoFile(null);
+                setRestaurantLogoUrl('');
                 setRestaurantLogoPreview(null);
+                setShowLogoUrlInput(false);
                 fetchRestaurantData();
 
                 // Emit socket event to update all connected clients (customer menu)
                 if (socket) {
+                  console.log('📡 Dashboard: Emitting restaurant-updated event via socket:', response.data);
                   socket.emit('restaurant-updated', response.data);
+                } else {
+                  console.warn('⚠️ Dashboard: Socket not connected, cannot emit restaurant-updated event');
                 }
               } catch (error) {
                 console.error('Error updating restaurant:', error);

@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-// PUT update restaurant settings (with optional logo upload)
+// PUT update restaurant settings (with optional logo upload or URL)
 router.put('/', upload.single('logo'), async (req, res) => {
   try {
     const updateData = { ...req.body };
@@ -45,16 +45,19 @@ router.put('/', upload.single('logo'), async (req, res) => {
     // If file was uploaded, use the file path
     if (req.file) {
       updateData.logo = `/uploads/${req.file.filename}`;
+    } else if (req.body.logoUrl) {
+      // If URL was provided, use the URL directly
+      updateData.logo = req.body.logoUrl;
     }
 
     let restaurant = await Restaurant.findOne();
-    
+
     if (!restaurant) {
       restaurant = new Restaurant(updateData);
     } else {
       Object.assign(restaurant, updateData);
     }
-    
+
     const updatedRestaurant = await restaurant.save();
     res.json(updatedRestaurant);
   } catch (error) {

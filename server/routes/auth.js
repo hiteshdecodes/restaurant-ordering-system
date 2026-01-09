@@ -1,8 +1,29 @@
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 // In-memory OTP storage (use Redis in production)
 const otpStorage = new Map();
+
+// Middleware to verify JWT token
+const verifyToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+};
 
 // Generate random 6-digit OTP
 const generateOTP = () => {
@@ -167,4 +188,128 @@ router.post('/resend-otp', async (req, res) => {
   }
 });
 
+// ============ DASHBOARD LOGIN ROUTES ============
+
+// Register Owner (first user only)
+router.post('/dashboard/register', async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+
+    // Check if owner already exists
+    const existingOwner = await User.findOne({ role: 'owner' });
+    if (existingOwner) {
+      return res.status(400).json({ message: 'Owner already exists. Contact owner to add new users.' });
+    }
+
+    // Create owner user
+    const user = new User({
+      username,
+      email,
+      password,
+      role: 'owner'
+    });
+
+    await user.save();
+
+    const token = jwt.sign(
+      { id: user._id, username: user.username, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.status(201).json({
+      message: 'Owner registered successfully',
+      token,
+      user: { id: user._id, username: user.username, email: user.email, role: user.role }
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Login
+router.post('/dashboard/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    if (!user.isActive) {
+      return res.status(401).json({ message: 'User account is inactive' });
+    }
+
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: 'Invalid credentials' });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, username: user.username, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      message: 'Login successful',
+      token,
+      user: { id: user._id, username: user.username, email: user.email, role: user.role }
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Get all users (Owner only)
+router.get('/dashboard/users', verifyToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'owner') {
+      return res.status(403).json({ message: 'Only owner can view users' });
+    }
+
+    const users = await User.find().select('-password');
+    res.json(users);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Add new user (Owner only)
+router.post('/dashboard/users', verifyToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'owner') {
+      return res.status(403).json({ message: 'Only owner can add users' });
+    }
+
+    const { username, email, password, role } = req.body;
+
+    const user = new User({ username, email, password, role });
+    await user.save();
+
+    res.status(201).json({
+      message: 'User added successfully',
+      user: { id: user._id, username: user.username, email: user.email, role: user.role }
+    });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
+// Delete user (Owner only)
+router.delete('/dashboard/users/:id', verifyToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'owner') {
+      return res.status(403).json({ message: 'Only owner can delete users' });
+    }
+
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;
+module.exports.verifyToken = verifyToken;

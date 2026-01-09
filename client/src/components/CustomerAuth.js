@@ -15,7 +15,7 @@ import {
 import { Phone, Person, Lock } from '@mui/icons-material';
 import axios from 'axios';
 
-const API_BASE = '/api';
+const API_BASE = 'https://restaurant-ordering-system-5jxm.onrender.com/api';
 
 const CustomerAuth = ({ open, onClose, onAuthenticated }) => {
   const [step, setStep] = useState(1); // 1: Phone, 2: OTP, 3: Name

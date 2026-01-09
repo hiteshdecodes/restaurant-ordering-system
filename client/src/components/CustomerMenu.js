@@ -19,8 +19,8 @@ import {
   ListItem,
   IconButton,
   Divider,
-  Collapse,
-  Drawer
+  Drawer,
+  Collapse
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -29,18 +29,21 @@ import {
   Whatshot as SpicyIcon,
   Search as SearchIcon,
   Clear as ClearIcon,
-  ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon,
   Delete as DeleteIcon,
   Logout as LogoutIcon,
-  CheckCircle as CheckCircleIcon
+  CheckCircle as CheckCircleIcon,
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon
 } from '@mui/icons-material';
 import axios from 'axios';
+import io from 'socket.io-client';
 import LoadingAnimation from './LoadingAnimation';
 import vegIcon from '../veg icon.png';
 import nonVegIcon from '../non veg.png';
+import { useTheme } from '../context/ThemeContext';
 
 const CustomerMenu = () => {
+  const { updateColors, restaurantColors } = useTheme();
   const [categories, setCategories] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(0);
@@ -54,12 +57,18 @@ const CustomerMenu = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [customerData, setCustomerData] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedCategories, setExpandedCategories] = useState({});
   const [clearCartConfirm, setClearCartConfirm] = useState(false);
   const [orderNote, setOrderNote] = useState('');
+  const [restaurantData, setRestaurantData] = useState(null);
+  const [socket, setSocket] = useState(null);
+  const [expandedCategories, setExpandedCategories] = useState({});
   const categoryRefs = useRef({});
 
-  const API_BASE = '/api';
+  // Use theme colors from context
+  const primaryColor = restaurantColors.primaryColor;
+  const secondaryColor = restaurantColors.secondaryColor;
+
+  const API_BASE = 'https://restaurant-ordering-system-5jxm.onrender.com/api';
 
   // Auto-logout customer after 2 hours of inactivity (customer side only, not dashboard)
   useEffect(() => {
@@ -135,7 +144,53 @@ const CustomerMenu = () => {
 
     fetchCategories();
     fetchMenuItems();
+    fetchRestaurantData();
   }, []);
+
+  // Fetch restaurant data
+  const fetchRestaurantData = async () => {
+    try {
+      const response = await axios.get(`${API_BASE}/restaurant`);
+      setRestaurantData(response.data);
+      // Apply theme colors from restaurant data
+      if (response.data.primaryColor && response.data.secondaryColor) {
+        updateColors(response.data.primaryColor, response.data.secondaryColor);
+      }
+    } catch (error) {
+      console.error('Error fetching restaurant data:', error);
+    }
+  };
+
+  // Setup socket connection for real-time restaurant updates
+  useEffect(() => {
+    console.log('🔌 CustomerMenu: Setting up socket connection...');
+    const newSocket = io('https://restaurant-ordering-system-5jxm.onrender.com');
+    setSocket(newSocket);
+
+    newSocket.on('connect', () => {
+      console.log('✅ CustomerMenu: Socket connected with ID:', newSocket.id);
+    });
+
+    // Listen for restaurant updates from dashboard
+    newSocket.on('restaurant-updated', (updatedData) => {
+      console.log('📡 CustomerMenu: Received restaurant-updated event:', updatedData);
+      setRestaurantData(updatedData);
+      // Update theme colors when restaurant data changes
+      if (updatedData.primaryColor && updatedData.secondaryColor) {
+        console.log('🎨 CustomerMenu: Updating colors to:', updatedData.primaryColor, updatedData.secondaryColor);
+        updateColors(updatedData.primaryColor, updatedData.secondaryColor);
+      }
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('❌ CustomerMenu: Socket disconnected');
+    });
+
+    return () => {
+      console.log('🔌 CustomerMenu: Closing socket connection');
+      newSocket.close();
+    };
+  }, [updateColors]);
 
   // Add scroll listener
   useEffect(() => {
@@ -160,15 +215,6 @@ const CustomerMenu = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [searchQuery, categories]);
 
-  // Initialize expanded categories
-  useEffect(() => {
-    const initialExpanded = {};
-    categories.forEach(cat => {
-      initialExpanded[cat._id] = true; // All categories expanded by default
-    });
-    setExpandedCategories(initialExpanded);
-  }, [categories]);
-
   const fetchCategories = async () => {
     try {
       const response = await axios.get(`${API_BASE}/categories`);
@@ -188,6 +234,15 @@ const CustomerMenu = () => {
       setLoading(false);
     }
   };
+
+  // Initialize expanded categories
+  useEffect(() => {
+    const initialExpanded = {};
+    categories.forEach(cat => {
+      initialExpanded[cat._id] = true; // All categories expanded by default
+    });
+    setExpandedCategories(initialExpanded);
+  }, [categories]);
 
   const getCartItemQuantity = (itemId) => {
     const cartItem = cart.find(item => item._id === itemId);
@@ -222,6 +277,14 @@ const CustomerMenu = () => {
 
   const getTotalAmount = () => {
     return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
+  // Toggle category expansion
+  const toggleCategory = (categoryId) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [categoryId]: !prev[categoryId]
+    }));
   };
 
   const getTotalItems = () => {
@@ -265,14 +328,6 @@ const CustomerMenu = () => {
       }
     });
     return grouped;
-  };
-
-  // Toggle category expansion
-  const toggleCategory = (categoryId) => {
-    setExpandedCategories(prev => ({
-      ...prev,
-      [categoryId]: !prev[categoryId]
-    }));
   };
 
   // Scroll to category section
@@ -343,29 +398,48 @@ const CustomerMenu = () => {
 
     return (
       <Container maxWidth="lg" sx={{ mt: 1, mb: 10, px: 1 }}>
-        {/* Header */}
-        <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1 }}>
+        {/* Header with Logo and Restaurant Name */}
+        <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1, gap: 1.5 }}>
+          {/* Logo Section */}
+          {restaurantData?.logo && (
+            <Box
+              component="img"
+              src={restaurantData.logo}
+              alt="Restaurant Logo"
+              sx={{
+                width: 60,
+                height: 60,
+                borderRadius: '8px',
+                objectFit: 'contain',
+                flexShrink: 0
+              }}
+            />
+          )}
+
+          {/* Restaurant Name and Table Info */}
           <Box sx={{ textAlign: 'left', flex: 1 }}>
-            <Typography variant="h6" component="h1" sx={{ fontWeight: 500, color: '#2d5016', fontSize: '18px' }}>
-              Restaurant Menu
+            <Typography variant="h6" component="h1" sx={{ fontWeight: 500, color: secondaryColor, fontSize: '18px' }}>
+              {restaurantData?.name || 'Restaurant Menu'}
             </Typography>
             <Typography variant="caption" sx={{ color: '#666', fontSize: '12px', fontWeight: 400 }}>
               Table {tableNumber}
             </Typography>
           </Box>
+
+          {/* Logout Button */}
           {customerData && (
             <Button
               variant="contained"
               onClick={handleCustomerLogout}
               size="small"
               sx={{
-                bgcolor: '#ff6b35',
+                bgcolor: primaryColor,
                 color: 'white',
                 textTransform: 'none',
                 fontSize: '12px',
                 py: 0.5,
                 px: 1.5,
-                '&:hover': { bgcolor: '#e55a24' }
+                '&:hover': { bgcolor: `${primaryColor}dd` }
               }}
               startIcon={<LogoutIcon sx={{ fontSize: '16px' }} />}
             >
@@ -426,7 +500,7 @@ const CustomerMenu = () => {
               sx={{
                 minHeight: '48px',
                 '& .MuiTabs-indicator': {
-                  backgroundColor: '#ff6b35',
+                  backgroundColor: primaryColor,
                   height: '3px'
                 },
                 '& .MuiTab-root': {
@@ -437,7 +511,7 @@ const CustomerMenu = () => {
                   px: 1.5,
                   color: '#666',
                   '&.Mui-selected': {
-                    color: '#ff6b35',
+                    color: primaryColor,
                     fontWeight: 600
                   }
                 }
@@ -473,11 +547,10 @@ const CustomerMenu = () => {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   p: 1.2,
-                  backgroundColor: '#2d5016',
+                  backgroundColor: secondaryColor,
                   color: 'white',
                   borderRadius: '6px',
                   cursor: 'pointer',
-                  '&:hover': { backgroundColor: '#1f3810' },
                 }}
               >
                 <Typography sx={{ fontWeight: 500, fontSize: '14px' }}>
@@ -488,6 +561,7 @@ const CustomerMenu = () => {
 
               {/* Category Items */}
               <Collapse in={expandedCategories[categoryId]} timeout="auto" unmountOnExit>
+              <Box>
                 <Box>
                   {categoryData.items.length > 0 ? (
                     categoryData.items.map((item) => (
@@ -570,7 +644,7 @@ const CustomerMenu = () => {
                           </Typography>
 
                           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 0.5 }}>
-                            <Typography sx={{ fontWeight: 500, fontSize: '13px', color: '#ff6b35' }}>
+                            <Typography sx={{ fontWeight: 500, fontSize: '13px', color: primaryColor }}>
                               ₹{item.price}
                             </Typography>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -584,10 +658,10 @@ const CustomerMenu = () => {
                                   width: '24px',
                                   height: '24px',
                                   p: 0,
-                                  borderColor: '#ff6b35',
-                                  color: '#ff6b35',
+                                  borderColor: primaryColor,
+                                  color: primaryColor,
                                   fontSize: '14px',
-                                  '&:hover': { bgcolor: '#fff3e0' }
+                                  '&:hover': { bgcolor: `${primaryColor}15` }
                                 }}
                               >
                                 <RemoveIcon sx={{ fontSize: '14px' }} />
@@ -605,10 +679,10 @@ const CustomerMenu = () => {
                                   width: '24px',
                                   height: '24px',
                                   p: 0,
-                                  borderColor: '#ff6b35',
-                                  color: '#ff6b35',
+                                  borderColor: primaryColor,
+                                  color: primaryColor,
                                   fontSize: '14px',
-                                  '&:hover': { bgcolor: '#fff3e0' }
+                                  '&:hover': { bgcolor: `${primaryColor}15` }
                                 }}
                               >
                                 <AddIcon sx={{ fontSize: '14px' }} />
@@ -624,6 +698,7 @@ const CustomerMenu = () => {
                     </Box>
                   )}
                 </Box>
+              </Box>
               </Collapse>
             </Box>
             ))
@@ -638,9 +713,9 @@ const CustomerMenu = () => {
               position: 'fixed',
               bottom: 20,
               right: 20,
-              bgcolor: '#ff6b35',
+              bgcolor: primaryColor,
               color: 'white',
-              '&:hover': { bgcolor: '#e55a24' }
+              '&:hover': { bgcolor: `${primaryColor}dd` }
             }}
             onClick={() => setCartOpen(true)}
           >
@@ -665,13 +740,13 @@ const CustomerMenu = () => {
             }
           }}
         >
-          <Box sx={{ p: 1.2, borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>Your Order - Table {tableNumber}</Typography>
+          <Box sx={{ p: 1.2, borderBottom: `2px solid ${secondaryColor}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography sx={{ fontWeight: 600, fontSize: '14px', color: secondaryColor }}>Your Order - Table {tableNumber}</Typography>
             {cart.length > 0 && (
               <IconButton
                 size="small"
                 onClick={handleClearCart}
-                sx={{ color: '#ff6b35' }}
+                sx={{ color: primaryColor }}
                 title="Clear cart"
               >
                 <DeleteIcon sx={{ fontSize: '18px' }} />
@@ -699,14 +774,14 @@ const CustomerMenu = () => {
                         <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                             <IconButton size="small" onClick={() => removeFromCart(item._id)} sx={{ p: 0.3 }}>
-                              <RemoveIcon sx={{ fontSize: '14px', color: '#ff6b35' }} />
+                              <RemoveIcon sx={{ fontSize: '14px', color: primaryColor }} />
                             </IconButton>
                             <Typography sx={{ minWidth: 24, textAlign: 'center', fontSize: '12px', fontWeight: 500 }}>{item.quantity}</Typography>
                             <IconButton size="small" onClick={() => addToCart(item)} sx={{ p: 0.3 }}>
-                              <AddIcon sx={{ fontSize: '14px', color: '#ff6b35' }} />
+                              <AddIcon sx={{ fontSize: '14px', color: primaryColor }} />
                             </IconButton>
                           </Box>
-                          <Typography sx={{ fontWeight: 500, fontSize: '12px', color: '#ff6b35' }}>₹{item.price * item.quantity}</Typography>
+                          <Typography sx={{ fontWeight: 500, fontSize: '12px', color: primaryColor }}>₹{item.price * item.quantity}</Typography>
                         </Box>
                       </ListItem>
                       <Divider sx={{ my: 0.5 }} />
@@ -717,7 +792,7 @@ const CustomerMenu = () => {
                 {/* Customer Info Card */}
                 {customerData && (
                   <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
-                    <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016', mb: 0.8 }}>
+                    <Typography sx={{ fontSize: '12px', fontWeight: 500, color: secondaryColor, mb: 0.8 }}>
                       Order Details
                     </Typography>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
@@ -736,7 +811,7 @@ const CustomerMenu = () => {
 
                 {/* Payment Details Card */}
                 <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
-                  <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016', mb: 0.8 }}>
+                  <Typography sx={{ fontSize: '12px', fontWeight: 500, color: secondaryColor, mb: 0.8 }}>
                     Payment Details
                   </Typography>
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.6 }}>
@@ -748,9 +823,9 @@ const CustomerMenu = () => {
                       <Typography sx={{ fontWeight: 400 }}>Taxes & Charges</Typography>
                       <Typography sx={{ fontWeight: 400 }}>Included</Typography>
                     </Box>
-                    <Box sx={{ borderTop: '1px solid #eee', pt: 0.6, mt: 0.6, display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 500, color: '#2d5016' }}>
+                    <Box sx={{ borderTop: '1px solid #eee', pt: 0.6, mt: 0.6, display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 500, color: secondaryColor }}>
                       <Typography sx={{ fontWeight: 500 }}>Total Amount</Typography>
-                      <Typography sx={{ color: '#ff6b35', fontSize: '13px', fontWeight: 500 }}>₹{getTotalAmount().toFixed(2)}</Typography>
+                      <Typography sx={{ color: primaryColor, fontSize: '13px', fontWeight: 500 }}>₹{getTotalAmount().toFixed(2)}</Typography>
                     </Box>
                   </Box>
                 </Box>
@@ -762,7 +837,7 @@ const CustomerMenu = () => {
           <Box sx={{ p: 1.2, borderTop: '1px solid #eee', bgcolor: '#fafafa', flexShrink: 0 }}>
             {/* Special Instructions - One liner */}
             <Box sx={{ mb: 1.2, p: 1.2, bgcolor: 'white', borderRadius: '8px', border: '1px solid #eee' }}>
-              <Typography sx={{ fontSize: '12px', fontWeight: 500, color: '#2d5016', mb: 0.8 }}>
+              <Typography sx={{ fontSize: '12px', fontWeight: 500, color: secondaryColor, mb: 0.8 }}>
                 Special Instructions
               </Typography>
               <TextField
@@ -793,7 +868,7 @@ const CustomerMenu = () => {
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
               <Box sx={{ flex: 0.4, textAlign: 'center' }}>
                 <Typography sx={{ fontSize: '11px', color: '#666', fontWeight: 400, mb: 0.3 }}>Total</Typography>
-                <Typography sx={{ fontSize: '16px', fontWeight: 500, color: '#ff6b35' }}>
+                <Typography sx={{ fontSize: '16px', fontWeight: 500, color: primaryColor }}>
                   ₹{getTotalAmount().toFixed(2)}
                 </Typography>
               </Box>
@@ -806,10 +881,10 @@ const CustomerMenu = () => {
                   fontSize: '13px',
                   py: 1,
                   textTransform: 'none',
-                  bgcolor: '#ff6b35',
+                  bgcolor: primaryColor,
                   color: 'white',
                   fontWeight: 500,
-                  '&:hover': { bgcolor: '#e55a24' }
+                  '&:hover': { bgcolor: `${primaryColor}dd` }
                 }}
               >
                 Place Order
