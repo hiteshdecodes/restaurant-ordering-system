@@ -9,6 +9,38 @@ const LoadingAnimation = ({
 }) => {
   // Different variants for different use cases
   const variants = {
+    // Default card variant
+    card: {
+      container: {
+        width: width,
+        height: height,
+        background: '#ffffff',
+        borderRadius: '8px',
+        padding: '12px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        ...style
+      },
+      main: {
+        width: '100%',
+        height: '40px',
+        borderRadius: '4px',
+        background: 'linear-gradient(120deg, #e5e5e5 30%, #f0f0f0 38%, #f0f0f0 40%, #e5e5e5 48%)',
+        backgroundSize: '200% 100%',
+        backgroundPosition: '100% 0',
+        animation: 'shimmer 2s infinite',
+        marginBottom: '8px'
+      },
+      sub: {
+        width: '80%',
+        height: '12px',
+        borderRadius: '4px',
+        background: 'linear-gradient(120deg, #e5e5e5 30%, #f0f0f0 38%, #f0f0f0 40%, #e5e5e5 48%)',
+        backgroundSize: '200% 100%',
+        backgroundPosition: '100% 0',
+        animation: 'shimmer 2s infinite',
+        margin: '0 auto'
+      }
+    },
     // For stats cards
     stats: {
       container: {

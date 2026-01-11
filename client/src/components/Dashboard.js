@@ -72,6 +72,7 @@ const Dashboard = () => {
   const { logout } = useContext(AuthContext);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [dashboardUser, setDashboardUser] = useState(null);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   const [activeTab, setActiveTab] = useState(0);
   const [orders, setOrders] = useState([]);
@@ -116,6 +117,89 @@ const Dashboard = () => {
     }
   };
 
+  // Fetch users
+  const fetchUsers = async () => {
+    try {
+      setUsersLoading(true);
+      const token = localStorage.getItem('dashboardToken');
+      const response = await axios.get(`${API_BASE}/auth/dashboard/users`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      alert('Failed to fetch users');
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
+  // Add new user
+  const handleAddUser = async () => {
+    if (!newUser.username || !newUser.email || !newUser.password) {
+      alert('Please fill all fields');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('dashboardToken');
+      await axios.post(`${API_BASE}/auth/dashboard/users`, newUser, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert('User added successfully');
+      setUserDialog(false);
+      setNewUser({ username: '', email: '', password: '', role: 'staff' });
+      fetchUsers();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to add user');
+    }
+  };
+
+  // Delete user
+  const handleDeleteUser = async (userId) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+
+    try {
+      const token = localStorage.getItem('dashboardToken');
+      await axios.delete(`${API_BASE}/auth/dashboard/users/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert('User deleted successfully');
+      fetchUsers();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to delete user');
+    }
+  };
+
+  // Reset password
+  const handleResetPassword = async () => {
+    if (!newPassword || !confirmPassword) {
+      alert('Please fill all fields');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('dashboardToken');
+      await axios.put(`${API_BASE}/auth/dashboard/users/${resetPasswordUser._id}/password`,
+        { password: newPassword },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert('Password reset successfully');
+      setResetPasswordDialog(false);
+      setResetPasswordUser(null);
+      setNewPassword('');
+      setConfirmPassword('');
+      fetchUsers();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to reset password');
+    }
+  };
+
   // Dialog states
   const [menuItemDialog, setMenuItemDialog] = useState(false);
   const [categoryDialog, setCategoryDialog] = useState(false);
@@ -135,6 +219,22 @@ const Dashboard = () => {
   const [restaurantLogoUrl, setRestaurantLogoUrl] = useState('');
   const [showLogoUrlInput, setShowLogoUrlInput] = useState(false);
   const [updatingRestaurant, setUpdatingRestaurant] = useState(false);
+
+  // User management states
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [userDialog, setUserDialog] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [newUser, setNewUser] = useState({
+    username: '',
+    email: '',
+    password: '',
+    role: 'staff'
+  });
+  const [resetPasswordDialog, setResetPasswordDialog] = useState(false);
+  const [resetPasswordUser, setResetPasswordUser] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   // Form states
   const [newMenuItem, setNewMenuItem] = useState({
@@ -243,6 +343,7 @@ const Dashboard = () => {
       setIsLoggedIn(true);
       setDashboardUser(JSON.parse(user));
     }
+    setIsCheckingAuth(false);
   }, []);
 
   useEffect(() => {
@@ -379,6 +480,16 @@ const Dashboard = () => {
       console.error('Error fetching table categories:', error);
     }
   };
+
+  // Fetch users when Users tab is opened
+  useEffect(() => {
+    if (dashboardUser?.role === 'owner' && activeTab === 6) {
+      fetchUsers();
+    } else {
+      // Reset loading state when leaving Users tab
+      setUsersLoading(false);
+    }
+  }, [activeTab, dashboardUser?.role]);
 
   const calculateStats = async () => {
     try {
@@ -824,6 +935,11 @@ const Dashboard = () => {
   };
 
   // Show login if not authenticated
+  // Show loading animation while checking authentication
+  if (isCheckingAuth) {
+    return <LoadingAnimation />;
+  }
+
   if (!isLoggedIn) {
     return <DashboardLogin onLoginSuccess={(user) => {
       setDashboardUser(user);
@@ -862,7 +978,7 @@ const Dashboard = () => {
           </Button>
           {dashboardUser && (
             <Typography sx={{ fontSize: '12px', color: '#666', mr: 1 }}>
-              👤 {dashboardUser.username} ({dashboardUser.role})
+              {dashboardUser.username} ({dashboardUser.role})
             </Typography>
           )}
           <Button
@@ -1000,6 +1116,7 @@ const Dashboard = () => {
           <Tab label="Categories" />
           <Tab label="Table Categories" />
           <Tab label="Tables" />
+          {dashboardUser?.role === 'owner' && <Tab label="Users" />}
           <Tab label="Settings" />
         </Tabs>
       </Box>
@@ -1906,13 +2023,130 @@ const Dashboard = () => {
         </Box>
       )}
 
-      {/* Settings Tab */}
-      {activeTab === 6 && (
+      {/* Users Tab (Owner only) */}
+      {dashboardUser?.role === 'owner' && activeTab === 6 && (
         <Box>
           <Box sx={{ mb: 2 }}>
             <Button
               variant="contained"
-              onClick={() => setRestaurantDialog(true)}
+              onClick={() => {
+                setNewUser({ username: '', email: '', password: '', role: 'staff' });
+                setEditingUser(null);
+                setUserDialog(true);
+              }}
+              sx={{
+                bgcolor: '#ff6b35',
+                color: 'white',
+                fontSize: '12px',
+                py: 0.6,
+                px: 1.5,
+                textTransform: 'none',
+                '&:hover': { bgcolor: '#e55a24' }
+              }}
+              startIcon={<AddIcon sx={{ fontSize: '16px' }} />}
+            >
+              Add New User
+            </Button>
+          </Box>
+
+          {usersLoading ? (
+            <LoadingAnimation />
+          ) : (
+            <TableContainer component={Paper} sx={{ borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+              <Table>
+                <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 600, color: '#2d5016' }}>Username</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#2d5016' }}>Email</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#2d5016' }}>Role</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#2d5016' }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 600, color: '#2d5016' }}>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user._id} sx={{ '&:hover': { backgroundColor: '#f9f9f9' } }}>
+                      <TableCell sx={{ fontSize: '12px' }}>{user.username}</TableCell>
+                      <TableCell sx={{ fontSize: '12px' }}>{user.email}</TableCell>
+                      <TableCell sx={{ fontSize: '12px' }}>
+                        <Chip
+                          label={user.role}
+                          size="small"
+                          sx={{
+                            backgroundColor: user.role === 'owner' ? '#2d5016' : '#ff6b35',
+                            color: 'white',
+                            fontSize: '11px'
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ fontSize: '12px' }}>
+                        <Chip
+                          label={user.isActive ? 'Active' : 'Inactive'}
+                          size="small"
+                          sx={{
+                            backgroundColor: user.isActive ? '#4CAF50' : '#f44336',
+                            color: 'white',
+                            fontSize: '11px'
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ fontSize: '12px' }}>
+                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              setResetPasswordUser(user);
+                              setNewPassword('');
+                              setConfirmPassword('');
+                              setResetPasswordDialog(true);
+                            }}
+                            sx={{ color: '#2196F3' }}
+                            title="Reset Password"
+                          >
+                            <EditIcon sx={{ fontSize: '16px' }} />
+                          </IconButton>
+                          {user.role !== 'owner' && (
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDeleteUser(user._id)}
+                              sx={{ color: '#f44336' }}
+                              title="Delete User"
+                            >
+                              <DeleteIcon sx={{ fontSize: '16px' }} />
+                            </IconButton>
+                          )}
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Box>
+      )}
+
+      {/* Settings Tab */}
+      {(dashboardUser?.role !== 'owner' ? activeTab === 6 : activeTab === 7) && (
+        <Box>
+          <Box sx={{ mb: 2 }}>
+            <Button
+              variant="contained"
+              onClick={() => {
+                setRestaurantDialog(true);
+                // Set preview and URL to existing logo when opening dialog
+                if (restaurantData?.logo) {
+                  setRestaurantLogoPreview(restaurantData.logo);
+                  setRestaurantLogoFile(null);
+                  setRestaurantLogoUrl('');
+                  setShowLogoUrlInput(false);
+                } else if (restaurantData?.logoUrl) {
+                  setRestaurantLogoPreview(restaurantData.logoUrl);
+                  setRestaurantLogoUrl(restaurantData.logoUrl);
+                  setRestaurantLogoFile(null);
+                  setShowLogoUrlInput(true);
+                }
+              }}
               sx={{
                 bgcolor: '#ff6b35',
                 color: 'white',
@@ -2643,7 +2877,19 @@ const Dashboard = () => {
       </Snackbar>
 
       {/* Restaurant Settings Dialog */}
-      <Dialog open={restaurantDialog} onClose={() => setRestaurantDialog(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={restaurantDialog}
+        onClose={() => {
+          setRestaurantDialog(false);
+          // Reset logo states when closing dialog
+          setRestaurantLogoFile(null);
+          setRestaurantLogoUrl('');
+          setRestaurantLogoPreview(null);
+          setShowLogoUrlInput(false);
+        }}
+        maxWidth="sm"
+        fullWidth
+      >
         <DialogTitle sx={{ fontWeight: 500, color: '#2d5016' }}>Edit Restaurant Information</DialogTitle>
         <DialogContent>
           <Box sx={{ mt: 2 }}>
@@ -2653,12 +2899,19 @@ const Dashboard = () => {
                 Restaurant Logo
               </Typography>
               {restaurantLogoPreview && (
-                <Box
-                  component="img"
-                  src={restaurantLogoPreview}
-                  alt="Logo Preview"
-                  sx={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', mb: 1 }}
-                />
+                <Box sx={{ mb: 2 }}>
+                  <Box
+                    component="img"
+                    src={restaurantLogoPreview}
+                    alt="Logo Preview"
+                    sx={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', mb: 1 }}
+                  />
+                  {restaurantLogoUrl && (
+                    <Typography sx={{ fontSize: '11px', color: '#666', wordBreak: 'break-all', mb: 1 }}>
+                      {restaurantLogoUrl}
+                    </Typography>
+                  )}
+                </Box>
               )}
 
               {/* Logo Input Tabs */}
@@ -2925,6 +3178,90 @@ const Dashboard = () => {
             disabled={updatingRestaurant}
           >
             {updatingRestaurant ? 'Saving...' : 'Save'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add/Edit User Dialog */}
+      <Dialog open={userDialog} onClose={() => setUserDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 500, color: '#2d5016' }}>
+          {editingUser ? 'Edit User' : 'Add New User'}
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              label="Username"
+              value={newUser.username}
+              onChange={(e) => setNewUser({...newUser, username: e.target.value})}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              type="email"
+              value={newUser.email}
+              onChange={(e) => setNewUser({...newUser, email: e.target.value})}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Password"
+              type="password"
+              value={newUser.password}
+              onChange={(e) => setNewUser({...newUser, password: e.target.value})}
+              sx={{ mb: 2 }}
+            />
+            <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Role</InputLabel>
+              <Select
+                value={newUser.role}
+                onChange={(e) => setNewUser({...newUser, role: e.target.value})}
+                label="Role"
+              >
+                <MenuItem value="staff">Staff</MenuItem>
+                <MenuItem value="manager">Manager</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setUserDialog(false)}>Cancel</Button>
+          <Button onClick={handleAddUser} variant="contained" sx={{ bgcolor: '#ff6b35', '&:hover': { bgcolor: '#e55a24' } }}>
+            {editingUser ? 'Update' : 'Add'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Reset Password Dialog */}
+      <Dialog open={resetPasswordDialog} onClose={() => setResetPasswordDialog(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ fontWeight: 500, color: '#2d5016' }}>
+          Reset Password for {resetPasswordUser?.username}
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <TextField
+              fullWidth
+              label="New Password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+            <TextField
+              fullWidth
+              label="Confirm Password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              sx={{ mb: 2 }}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setResetPasswordDialog(false)}>Cancel</Button>
+          <Button onClick={handleResetPassword} variant="contained" sx={{ bgcolor: '#ff6b35', '&:hover': { bgcolor: '#e55a24' } }}>
+            Reset Password
           </Button>
         </DialogActions>
       </Dialog>

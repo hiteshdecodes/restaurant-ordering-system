@@ -14,10 +14,12 @@ import {
 } from '@mui/material';
 import { Phone, Person, Lock } from '@mui/icons-material';
 import axios from 'axios';
+import { useTheme } from '../context/ThemeContext';
 
 const API_BASE = 'https://restaurant-ordering-system-5jxm.onrender.com/api';
 
 const CustomerAuth = ({ open, onClose, onAuthenticated }) => {
+  const { theme } = useTheme();
   const [step, setStep] = useState(1); // 1: Phone, 2: OTP, 3: Name
   const [phone, setPhone] = useState('');
   const [otp, setOtp] = useState('');
@@ -156,7 +158,7 @@ const CustomerAuth = ({ open, onClose, onAuthenticated }) => {
         sx: { borderRadius: '8px', boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)' }
       }}
     >
-      <DialogTitle sx={{ textAlign: 'center', pb: 0.8, bgcolor: '#2d5016', color: 'white', py: 1.2 }}>
+      <DialogTitle sx={{ textAlign: 'center', pb: 0.8, bgcolor: theme?.secondary?.main || '#2d5016', color: 'white', py: 1.2 }}>
         <Typography sx={{ fontWeight: 700, fontSize: '16px', color: 'white' }}>
           Welcome to Our Restaurant
         </Typography>
@@ -191,7 +193,7 @@ const CustomerAuth = ({ open, onClose, onAuthenticated }) => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Phone sx={{ fontSize: '18px', color: '#ff6b35' }} />
+                    <Phone sx={{ fontSize: '18px', color: theme?.primary?.main || '#ff6b35' }} />
                     <Typography sx={{ ml: 0.8, mr: 0.8, fontSize: '12px', color: '#666' }}>+91</Typography>
                   </InputAdornment>
                 ),
@@ -222,7 +224,7 @@ const CustomerAuth = ({ open, onClose, onAuthenticated }) => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Lock sx={{ fontSize: '18px', color: '#ff6b35' }} />
+                    <Lock sx={{ fontSize: '18px', color: theme?.primary?.main || '#ff6b35' }} />
                   </InputAdornment>
                 ),
               }}
@@ -237,7 +239,7 @@ const CustomerAuth = ({ open, onClose, onAuthenticated }) => {
               <Button
                 variant="text"
                 onClick={handleResendOTP}
-                sx={{ mt: 1, fontSize: '12px', color: '#ff6b35', textTransform: 'none' }}
+                sx={{ mt: 1, fontSize: '12px', color: theme?.primary?.main || '#ff6b35', textTransform: 'none' }}
                 disabled={loading}
               >
                 Resend OTP
@@ -265,7 +267,7 @@ const CustomerAuth = ({ open, onClose, onAuthenticated }) => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Person sx={{ fontSize: '18px', color: '#ff6b35' }} />
+                    <Person sx={{ fontSize: '18px', color: theme?.primary?.main || '#ff6b35' }} />
                   </InputAdornment>
                 ),
               }}
@@ -292,7 +294,7 @@ const CustomerAuth = ({ open, onClose, onAuthenticated }) => {
           variant="contained"
           disabled={loading || (step === 1 && phone.length !== 10) || (step === 2 && otp.length !== 6) || (step === 3 && !name.trim())}
           startIcon={loading && <CircularProgress size={16} sx={{ color: 'white' }} />}
-          sx={{ minWidth: 100, bgcolor: '#ff6b35', color: 'white', fontSize: '12px', py: 0.6, textTransform: 'none', '&:hover': { bgcolor: '#e55a24' } }}
+          sx={{ minWidth: 100, bgcolor: theme?.primary?.main || '#ff6b35', color: 'white', fontSize: '12px', py: 0.6, textTransform: 'none', '&:hover': { bgcolor: theme?.primary?.dark || '#e55a24' } }}
         >
           {loading ? 'Please wait...' :
            step === 1 ? 'Send OTP' :

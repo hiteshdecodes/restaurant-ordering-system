@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Grid,
@@ -32,6 +33,7 @@ import LoadingAnimation from './LoadingAnimation';
 import { NotificationContext } from '../context/NotificationContext';
 
 const TableOrders = () => {
+  const navigate = useNavigate();
   const [tables, setTables] = useState([]);
   const [tableCategories, setTableCategories] = useState([]);
   const [tableOrders, setTableOrders] = useState({});
@@ -51,6 +53,13 @@ const TableOrders = () => {
   const [currentNotification, setCurrentNotification] = useState(null);
 
   useEffect(() => {
+    // Check if user is logged in
+    const dashboardToken = localStorage.getItem('dashboardToken');
+    if (!dashboardToken) {
+      navigate('/dashboard');
+      return;
+    }
+
     fetchTables();
     fetchAllOrders();
 

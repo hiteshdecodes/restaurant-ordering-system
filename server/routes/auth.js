@@ -311,5 +311,32 @@ router.delete('/dashboard/users/:id', verifyToken, async (req, res) => {
   }
 });
 
+// Reset user password (Owner only)
+router.put('/dashboard/users/:id/password', verifyToken, async (req, res) => {
+  try {
+    if (req.user.role !== 'owner') {
+      return res.status(403).json({ message: 'Only owner can reset passwords' });
+    }
+
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ message: 'Password is required' });
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.password = password;
+    await user.save();
+
+    res.json({ message: 'Password reset successfully' });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+});
+
 module.exports = router;
 module.exports.verifyToken = verifyToken;
