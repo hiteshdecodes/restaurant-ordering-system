@@ -1236,7 +1236,7 @@ const Dashboard = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {ordersLoading ? (
+                {ordersLoading && activeTab === 0 ? (
                   <>
                     {[...Array(6)].map((_, i) => (
                       <TableRow key={`loading-${i}`} sx={{ '&:hover': { backgroundColor: 'transparent' } }}>
